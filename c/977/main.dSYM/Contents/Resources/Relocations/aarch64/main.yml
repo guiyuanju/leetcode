@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/june/Code/Projects/leetcode/c/977/main'
+relocations:     []
+...
