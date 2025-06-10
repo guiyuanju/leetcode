@@ -14,7 +14,7 @@ type SeatManager struct {
 func Constructor(n int) SeatManager {
 	hv := make([]int, n)
 	for i := range n {
-		hv[i] = i
+		hv[i] = i + 1
 	}
 	h := Heap(hv)
 	heap.Init(&h)
