@@ -10,7 +10,8 @@ func main() {
 	fmt.Println(minPathSum([][]int{{1, 2, 3}, {4, 5, 6}}))
 }
 
-func minPathSum2(grid [][]int) int {
+// top down with memo omitted
+func minPathSum1(grid [][]int) int {
 	m := len(grid)
 	n := len(grid[0])
 	var dp func(r, c int) int
@@ -33,7 +34,8 @@ func minPathSum2(grid [][]int) int {
 	return dp(0, 0)
 }
 
-func minPathSum(grid [][]int) int {
+// bottom up
+func minPathSum2(grid [][]int) int {
 	m := len(grid)
 	n := len(grid[0])
 	dp := make([][]int, m)
@@ -59,4 +61,30 @@ func minPathSum(grid [][]int) int {
 	}
 
 	return dp[0][0]
+}
+
+// bottom up with space optimized to O(n)
+func minPathSum(grid [][]int) int {
+	m := len(grid)
+	n := len(grid[0])
+	dp := make([]int, n)
+	dp[n-1] = grid[m-1][n-1]
+
+	for i := m - 1; i >= 0; i-- {
+		for j := n - 1; j >= 0; j-- {
+			if i == m-1 && j == n-1 {
+				continue
+			}
+			res := math.MaxInt
+			if i < m-1 {
+				res = min(res, dp[j])
+			}
+			if j < n-1 {
+				res = min(res, dp[j+1])
+			}
+			dp[j] = res + grid[i][j]
+		}
+	}
+
+	return dp[0]
 }
