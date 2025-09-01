@@ -21,29 +21,33 @@ func main() {
 }
 
 func pathSum(root *TreeNode, targetSum int) [][]int {
-	var res [][]int
+	if root == nil {
+		return nil
+	}
 
-	var dfs func(*TreeNode, int, []int)
-	dfs = func(root *TreeNode, remain int, path []int) {
-		if root == nil {
-			return
-		}
+	var res [][]int
+	var dfs func(root *TreeNode, path []int, curSum int)
+	dfs = func(root *TreeNode, path []int, curSum int) {
 		if root.Left == nil && root.Right == nil {
-			if remain == root.Val {
-				path = append(path, root.Val)
-				tmp := make([]int, len(path))
-				copy(tmp, path)
+			if curSum+root.Val == targetSum {
+				tmp := make([]int, len(path)+1)
+				copy(tmp, append(path, root.Val))
 				res = append(res, tmp)
 			}
 			return
 		}
 
-		path = append(path, root.Val)
-		dfs(root.Left, remain-root.Val, path)
-		dfs(root.Right, remain-root.Val, path)
+		if root.Left != nil {
+			dfs(root.Left, append(path, root.Val), curSum+root.Val)
+		}
+
+		if root.Right != nil {
+			dfs(root.Right, append(path, root.Val), curSum+root.Val)
+		}
 	}
 
-	dfs(root, targetSum, []int{})
+	dfs(root, nil, 0)
+
 	return res
 }
 
