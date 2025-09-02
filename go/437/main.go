@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
 	root := makeBinaryTree([]any{10, 5, -3, 3, 2, nil, 11, 3, -2, nil, 1})
@@ -17,23 +19,27 @@ func main() {
 }
 
 func pathSum(root *TreeNode, targetSum int) int {
-	m := map[int]int{}
-	var res int
-	var dfs func(*TreeNode, int)
-	dfs = func(root *TreeNode, sum int) {
+	prefix := map[int]int{}
+	prefix[0] = 1
+	var dfs func(root *TreeNode, curSum int) int
+	dfs = func(root *TreeNode, curSum int) int {
 		if root == nil {
-			return
+			return 0
 		}
 
-		m[sum]++
-		res += m[sum+root.Val-targetSum]
-		dfs(root.Left, sum+root.Val)
-		dfs(root.Right, sum+root.Val)
-		m[sum]--
-	}
+		curSum += root.Val
 
-	dfs(root, 0)
-	return res
+		var res int
+		if prefix[curSum-targetSum] > 0 {
+			res += 1
+		} // curSum - pre = targetSum
+		prefix[curSum]++
+		res += dfs(root.Left, curSum) + dfs(root.Right, curSum)
+		prefix[curSum]--
+
+		return res
+	}
+	return dfs(root, 0)
 }
 
 type TreeNode struct {
