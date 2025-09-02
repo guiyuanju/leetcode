@@ -14,33 +14,27 @@ func main() {
 }
 
 func longestZigZag(root *TreeNode) int {
-	var longest int
-	var helper func(*TreeNode) (int, int)
-	helper = func(root *TreeNode) (int, int) {
+	var res int
+	var dfs func(root *TreeNode, cur int, left bool)
+	dfs = func(root *TreeNode, cur int, left bool) {
 		if root == nil {
-			return 0, 0
+			res = max(res, cur)
+			return
 		}
 
-		var ml, mr int
-
-		if root.Left != nil {
-			_, r := helper(root.Left)
-			ml = r + 1
+		if left {
+			dfs(root.Left, 0, true)
+			dfs(root.Right, cur+1, false)
+		} else {
+			dfs(root.Left, cur+1, true)
+			dfs(root.Right, 0, false)
 		}
-
-		if root.Right != nil {
-			l, _ := helper(root.Right)
-			mr = l + 1
-		}
-
-		longest = max(longest, max(ml, mr))
-
-		return ml, mr
 	}
 
-	helper(root)
+	dfs(root.Left, 0, true)
+	dfs(root.Right, 0, false)
 
-	return longest
+	return res
 }
 
 func assertEq[T comparable](a, b T) {
