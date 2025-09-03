@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func main() {
 	root := makeBinaryTree([]any{6, 2, 8, 0, 4, 7, 9, nil, nil, 3, 5})
@@ -20,17 +23,26 @@ func main() {
 }
 
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+	left := min(p.Val, q.Val)
+	right := max(p.Val, q.Val)
 	for root != nil {
-		if p.Val < root.Val && q.Val < root.Val {
+		if right < root.Val {
 			root = root.Left
-		} else if p.Val > root.Val && q.Val > root.Val {
+		} else if left > root.Val {
 			root = root.Right
 		} else {
 			return root
 		}
 	}
+	return nil
+}
 
-	return root
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 type TreeNode struct {
