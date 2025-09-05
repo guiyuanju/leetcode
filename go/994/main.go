@@ -13,6 +13,15 @@ func main() {
 
 	grid = [][]int{{0, 2}}
 	assertEq(0, orangesRotting(grid))
+
+	grid = [][]int{{0}}
+	assertEq(0, orangesRotting(grid))
+
+	grid = [][]int{{1}}
+	assertEq(-1, orangesRotting(grid))
+
+	grid = [][]int{{2}}
+	assertEq(0, orangesRotting(grid))
 }
 
 func assertEq[T comparable](a, b T) {
@@ -24,49 +33,47 @@ func assertEq[T comparable](a, b T) {
 }
 
 func orangesRotting(grid [][]int) int {
-	type step struct {
-		row, col, step int
-	}
-
-	M := len(grid)
-	N := len(grid[0])
-
-	seen := map[[2]int]bool{}
-	queue := []step{}
-	freshCount := 0
-	for i := range M {
-		for j := range N {
-			if grid[i][j] == 2 {
-				queue = append(queue, step{i, j, 0})
-				seen[[2]int{i, j}] = true
-			} else if grid[i][j] == 1 {
-				freshCount++
-			}
-		}
-	}
-
+	m := len(grid)
+	n := len(grid[0])
 	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-	valid := func(row, col int) bool {
-		return 0 <= row && row < M && 0 <= col && col < N && grid[row][col] == 1
+	valid := func(r, c int) bool {
+		return 0 <= r && r < m && 0 <= c && c < n && grid[r][c] == 1
 	}
 
-	var res int
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
-		for _, dir := range directions {
-			newRow, newCol := cur.row+dir[0], cur.col+dir[1]
-			if !seen[[2]int{newRow, newCol}] && valid(newRow, newCol) {
-				seen[[2]int{newRow, newCol}] = true
-				queue = append(queue, step{newRow, newCol, cur.step + 1})
-				res = max(res, cur.step+1)
-				freshCount--
+	queue := [][2]int{}
+	for i := range m {
+		for j := range n {
+			if grid[i][j] == 2 {
+				queue = append(queue, [2]int{i, j})
 			}
 		}
 	}
 
-	if freshCount > 0 {
-		return -1
+	step := 0
+	for len(queue) > 0 {
+		for range len(queue) {
+			cur := queue[0]
+			queue = queue[1:]
+			for _, dir := range directions {
+				nextRow, nextCol := cur[0]+dir[0], cur[1]+dir[1]
+				if valid(nextRow, nextCol) {
+					grid[nextRow][nextCol] = 2
+					queue = append(queue, [2]int{nextRow, nextCol})
+				}
+			}
+		}
+		if len(queue) > 0 { // !!
+			step++
+		}
 	}
-	return res
+
+	for i := range m {
+		for j := range n {
+			if grid[i][j] == 1 {
+				return -1
+			}
+		}
+	}
+
+	return step
 }
