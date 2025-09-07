@@ -7,83 +7,43 @@ func main() {
 	fmt.Println(canFinish(2, [][]int{{1, 0}, {0, 1}}))
 }
 
-type color int
-
-const (
-	white = iota
-	gray
-	black
-)
-
-func canFinish3StatesDFS(numCourses int, prerequisites [][]int) bool {
-	g := make(map[int][]int, numCourses)
+func canFinish(numCourses int, prerequisites [][]int) bool {
+	g := map[int][]int{}
 	for _, p := range prerequisites {
 		g[p[0]] = append(g[p[0]], p[1])
 	}
 
-	state := make([]color, numCourses)
-	for i := range state {
-		state[i] = white
-	}
+	const (
+		White = 0
+		Gray  = 1
+		Black = 2
+	)
 
+	states := make([]int, numCourses)
 	var dfs func(n int) bool
 	dfs = func(n int) bool {
-		if state[n] == gray {
+		if states[n] == Gray {
 			return false
 		}
-		if state[n] == black {
+		if states[n] == Black {
 			return true
 		}
-
-		state[n] = gray
+		states[n] = Gray
 		for _, nei := range g[n] {
 			if !dfs(nei) {
 				return false
 			}
 		}
-		state[n] = black
+		states[n] = Black
 		return true
 	}
 
-	for n, c := range state {
-		if c == white {
+	for n := range numCourses {
+		if states[n] == White {
 			if !dfs(n) {
 				return false
 			}
 		}
 	}
-
 	return true
-}
-
-// Kahn's algorithm
-func canFinish(numCourses int, prerequisites [][]int) bool {
-	g := make(map[int][]int, numCourses)
-	indegree := make([]int, numCourses)
-	for _, p := range prerequisites {
-		g[p[0]] = append(g[p[0]], p[1])
-		indegree[p[1]]++
-	}
-
-	q := make([]int, 0, numCourses)
-	for n, d := range indegree {
-		if d == 0 {
-			q = append(q, n)
-		}
-	}
-
-	var count int
-	for len(q) > 0 {
-		cur := q[0]
-		q = q[1:]
-		count++
-		for _, nei := range g[cur] {
-			indegree[nei]--
-			if indegree[nei] == 0 {
-				q = append(q, nei)
-			}
-		}
-	}
-
-	return count == numCourses
 }
