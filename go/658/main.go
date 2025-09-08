@@ -1,8 +1,10 @@
 package main
 
-import "fmt"
-import "container/heap"
-import "slices"
+import (
+	"container/heap"
+	"fmt"
+	"slices"
+)
 
 func main() {
 	arr := []int{1, 2, 3, 4, 5}
