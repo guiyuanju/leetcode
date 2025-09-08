@@ -12,6 +12,18 @@ func main() {
 	assertEq(1.5, mf.FindMedian())
 	mf.AddNum(3)
 	assertEq(2.0, mf.FindMedian())
+
+	mf = Constructor()
+	mf.AddNum(-1)
+	assertEq(-1, mf.FindMedian())
+	mf.AddNum(-2)
+	assertEq(-1.5, mf.FindMedian())
+	mf.AddNum(-3)
+	assertEq(-2.0, mf.FindMedian())
+	mf.AddNum(-4)
+	assertEq(-2.5, mf.FindMedian())
+	mf.AddNum(-5)
+	assertEq(-3.0, mf.FindMedian())
 }
 
 func assertEq[T comparable](a, b T) {
@@ -29,44 +41,32 @@ func (h Heap) Less(i, j int) bool { return h[i] < h[j] }
 func (h Heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 func (h *Heap) Push(x any)        { *h = append(*h, x.(int)) }
 func (h *Heap) Pop() any {
-	old := *h
-	n := len(old)
-	res := old[n-1]
-	*h = old[:n-1]
-	return res
-}
-func (h *Heap) Peek() any {
-	res := heap.Pop(h)
-	heap.Push(h, res)
-	return res
+	hd := (*h)[len(*h)-1]
+	*h = (*h)[:len(*h)-1]
+	return hd
 }
 
 type MedianFinder struct {
-	left  *Heap
-	right *Heap
+	left, right Heap
 }
 
 func Constructor() MedianFinder {
-	return MedianFinder{new(Heap), new(Heap)}
+	return MedianFinder{}
 }
 
 func (this *MedianFinder) AddNum(num int) {
-	heap.Push(this.left, -num)
-	heap.Push(this.right, -heap.Pop(this.left).(int))
-	if this.right.Len() > this.left.Len() {
-		heap.Push(this.left, -heap.Pop(this.right).(int))
+	heap.Push(&(this.right), num)
+	heap.Push(&(this.left), -heap.Pop(&(this.right)).(int))
+	if this.left.Len()-this.right.Len() == 2 {
+		heap.Push(&(this.right), -heap.Pop(&(this.left)).(int))
 	}
 }
 
 func (this *MedianFinder) FindMedian() float64 {
-	if this.left.Len() == this.right.Len() {
-		l := -this.left.Peek().(int)
-		r := this.right.Peek().(int)
-		res := float64(l+r) / 2
-		return res
+	if this.left.Len() > this.right.Len() {
+		return -float64(this.left[0])
 	}
-	l := -this.left.Peek().(int)
-	return float64(l)
+	return (-float64(this.left[0]) + float64(this.right[0])) / 2
 }
 
 /**
