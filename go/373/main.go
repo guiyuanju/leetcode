@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
-import "container/heap"
+import (
+	"container/heap"
+	"fmt"
+)
 
 func main() {
 	nums1 := []int{1, 7, 11}
@@ -16,36 +18,44 @@ func main() {
 }
 
 func kSmallestPairs(nums1 []int, nums2 []int, k int) [][]int {
-	h := new(Heap)
-	for _, m := range nums1 {
-		for _, n := range nums2 {
-			heap.Push(h, []int{m, n})
-			if h.Len() > k {
-				top := heap.Pop(h).([]int)
-				if m+n >= top[0]+top[1] {
-					break
-				}
-			}
+	var res [][]int
+	seen := map[[2]int]bool{}
+	h := Heap([][3]int{{0, 0, nums1[0] + nums2[0]}})
+	seen[[2]int{0, 0}] = true
+
+	for len(res) < k && h.Len() > 0 {
+		cur := heap.Pop(&h).([3]int)
+		i := cur[0]
+		j := cur[1]
+		res = append(res, []int{nums1[i], nums2[j]})
+
+		if i < len(nums1)-1 && !seen[[2]int{i + 1, j}] {
+			seen[[2]int{i + 1, j}] = true
+			heap.Push(&h, [3]int{i + 1, j, nums1[i+1] + nums2[j]})
+		}
+
+		if j < len(nums2)-1 && !seen[[2]int{i, j + 1}] {
+			seen[[2]int{i, j + 1}] = true
+			heap.Push(&h, [3]int{i, j + 1, nums1[i] + nums2[j+1]})
+		}
+
+		if i < len(nums1)-1 && j < len(nums2)-1 && !seen[[2]int{i + 1, j + 1}] {
+			seen[[2]int{i + 1, j + 1}] = true
+			heap.Push(&h, [3]int{i + 1, j + 1, nums1[i+1] + nums2[j+1]})
 		}
 	}
 
-	var res [][]int
-	for h.Len() > 0 {
-		res = append(res, heap.Pop(h).([]int))
-	}
 	return res
 }
 
-type Heap [][]int
+type Heap [][3]int
 
 func (h Heap) Len() int           { return len(h) }
-func (h Heap) Less(i, j int) bool { return h[i][0]+h[i][1] > h[j][0]+h[j][1] }
+func (h Heap) Less(i, j int) bool { return h[i][2] < h[j][2] }
 func (h Heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *Heap) Push(x any)        { *h = append(*h, x.([]int)) }
+func (h *Heap) Push(x any)        { *h = append(*h, x.([3]int)) }
 func (h *Heap) Pop() any {
-	old := *h
-	n := len(old)
-	res := old[n-1]
-	*h = old[:n-1]
-	return res
+	hd := (*h)[len(*h)-1]
+	*h = (*h)[:len(*h)-1]
+	return hd
 }
