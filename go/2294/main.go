@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
-import "slices"
+import (
+	"fmt"
+	"slices"
+)
 
 func main() {
 	nums := []int{3, 6, 1, 2, 5}
@@ -33,10 +35,10 @@ func partitionArray(nums []int, k int) int {
 	slices.Sort(nums)
 	res := 1
 	start := nums[0]
-	for i := 1; i < len(nums); i++ {
-		if nums[i] > start+k {
+	for _, n := range nums {
+		if n-start > k {
+			start = n
 			res++
-			start = nums[i]
 		}
 	}
 	return res
