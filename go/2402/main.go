@@ -1,9 +1,10 @@
 package main
 
-import "fmt"
-
-import "container/heap"
-import "slices"
+import (
+	"container/heap"
+	"fmt"
+	"slices"
+)
 
 func main() {
 	n := 2
@@ -21,6 +22,8 @@ func main() {
 	n = 4
 	meetings = [][]int{{18, 19}, {3, 12}, {17, 19}, {2, 13}, {7, 10}}
 	assertEq(0, mostBooked(n, meetings))
+	// [2, 13, 0] [3, 12, 1] [7, 10, 2] [17, 19, 3]
+	// 1 1 1 1
 
 	n = 3
 	meetings = [][]int{{44, 50}, {22, 37}, {46, 49}, {35, 45}, {11, 21}, {31, 32}, {16, 45}}
@@ -36,73 +39,57 @@ func assertEq[T comparable](a, b T) {
 }
 
 func mostBooked(n int, meetings [][]int) int {
-	counts = make([]int, n)
-	ends = make([]int, n)
-	slices.SortFunc(meetings, func(a, b []int) int { return a[0] - b[0] })
+	count := make([]int, n)
+	slices.SortFunc(meetings, func(a, b []int) int {
+		return a[0] - b[0]
+	})
 
-	empties := new(EmptyHeap)
-	usings := new(UsingHeap)
+	unused := Heap([][]int{})
+	used := Heap([][]int{})
 	for i := range n {
-		heap.Push(empties, i)
+		unused = append(unused, []int{i, i})
 	}
 
 	for _, m := range meetings {
-		// using -> empty
-		for usings.Len() > 0 {
-			r := heap.Pop(usings).(int)
-			if ends[r] <= m[0] {
-				heap.Push(empties, r)
-			} else {
-				heap.Push(usings, r)
-				break
-			}
+		for used.Len() > 0 && used[0][0] <= m[0] {
+			cur := heap.Pop(&used).([]int)
+			heap.Push(&unused, []int{cur[1], cur[1]})
 		}
-
-		if empties.Len() > 0 {
-			r := heap.Pop(empties).(int)
-			ends[r] = m[1]
-			counts[r]++
-			heap.Push(usings, r)
+		if unused.Len() > 0 {
+			cur := heap.Pop(&unused).([]int)
+			count[cur[0]]++
+			cur[0] = m[1]
+			heap.Push(&used, cur)
 		} else {
-			r := heap.Pop(usings).(int)
-			ends[r] += m[1] - m[0]
-			counts[r]++
-			heap.Push(usings, r)
+			used[0][0] += m[1] - m[0]
+			count[used[0][1]]++
+			heap.Fix(&used, 0)
 		}
 	}
 
-	return slices.Index(counts, slices.Max(counts))
-}
-
-var counts []int
-var ends []int
-
-type UsingHeap []int
-
-func (h UsingHeap) Len() int { return len(h) }
-func (h UsingHeap) Less(i, j int) bool {
-	return ends[h[i]] < ends[h[j]] || (ends[h[i]] == ends[h[j]] && h[i] < h[j])
-}
-func (h UsingHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
-func (h *UsingHeap) Push(x any)   { *h = append(*h, x.(int)) }
-func (h *UsingHeap) Pop() any {
-	old := *h
-	n := len(old)
-	res := old[n-1]
-	*h = old[:n-1]
+	var res, hi int
+	for i, c := range count {
+		if c > hi {
+			hi = c
+			res = i
+		}
+	}
 	return res
 }
 
-type EmptyHeap []int
+type Heap [][]int
 
-func (h EmptyHeap) Len() int           { return len(h) }
-func (h EmptyHeap) Less(i, j int) bool { return h[i] < h[j] }
-func (h EmptyHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *EmptyHeap) Push(x any)        { *h = append(*h, x.(int)) }
-func (h *EmptyHeap) Pop() any {
-	old := *h
-	n := len(old)
-	res := old[n-1]
-	*h = old[:n-1]
-	return res
+func (h Heap) Len() int { return len(h) }
+func (h Heap) Less(i, j int) bool {
+	if h[i][0] == h[j][0] {
+		return h[i][1] < h[j][1]
+	}
+	return h[i][0] < h[j][0]
+}
+func (h Heap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
+func (h *Heap) Push(x any)   { *h = append(*h, x.([]int)) }
+func (h *Heap) Pop() any {
+	hd := (*h)[len(*h)-1]
+	*h = (*h)[:len(*h)-1]
+	return hd
 }
