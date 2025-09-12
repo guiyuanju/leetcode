@@ -19,32 +19,23 @@ func main() {
 
 func successfulPairs(spells []int, potions []int, success int64) []int {
 	slices.Sort(potions)
-	var res []int
-	for _, s := range spells {
-		target := int(ceil(success, int64(s)))
-		idx := bs(potions, target)
-		res = append(res, len(potions)-idx)
+	res := make([]int, len(spells))
+	for i := range res {
+		res[i] = len(potions) - bs(potions, float64(success)/float64(spells[i]))
 	}
 	return res
 }
 
-func ceil(x, y int64) int64 {
-	if x%y > 0 {
-		return x/y + 1
-	}
-	return x / y
-}
-
-func bs(potions []int, target int) int {
-	left := 0
-	right := len(potions)
-	for left < right {
-		mid := left + (right-left)/2
-		if potions[mid] >= target {
-			right = mid
+func bs(arr []int, target float64) int {
+	i := 0
+	j := len(arr)
+	for i < j {
+		mid := i + (j-i)/2
+		if float64(arr[mid]) >= target {
+			j = mid
 		} else {
-			left = mid + 1
+			i = mid + 1
 		}
 	}
-	return left
+	return i
 }
