@@ -36,11 +36,10 @@ func numRescueBoats(people []int, limit int) int {
 	i := 0
 	j := len(people) - 1
 	var res int
-	for i <= j {
+	for ; i <= j; i++ {
 		if people[i]+people[j] <= limit {
 			j--
 		}
-		i++
 		res++
 	}
 	return res
