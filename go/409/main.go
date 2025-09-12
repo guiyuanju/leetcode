@@ -23,23 +23,14 @@ func assertEq[T comparable](a, b T) {
 
 func longestPalindrome(s string) int {
 	counts := map[byte]int{}
-	for _, r := range s {
-		b := byte(r)
-		counts[b]++
+	for _, c := range []byte(s) {
+		counts[c]++
 	}
 
-	var hasSingle bool
-	var count int
+	var res, odd int
 	for _, c := range counts {
-		if c%2 > 0 {
-			hasSingle = true
-		}
-		count += c / 2 * 2
+		res += c / 2 * 2
+		odd = max(odd, c%2)
 	}
-
-	if hasSingle {
-		count++
-	}
-
-	return count
+	return res + odd
 }
