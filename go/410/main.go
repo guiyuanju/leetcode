@@ -19,33 +19,33 @@ func assertEq[T comparable](a, b T) {
 }
 
 func splitArray(nums []int, k int) int {
-	check := func(value int) bool {
+	check := func(g int) bool {
 		var cur, count int
 		for _, n := range nums {
-			if n > value {
-				return false
-			}
 			cur += n
-			if cur > value {
-				count++
+			if cur > g {
 				cur = n
+				count++
 			}
 		}
 		return count+1 <= k
 	}
 
-	var left, right int
+	var lo, hi int
 	for _, n := range nums {
-		right += n
+		hi += n
+		lo = max(lo, n)
 	}
+	hi++
 
-	for left <= right {
-		mid := left + (right-left)/2
+	for lo < hi {
+		mid := lo + (hi-lo)/2
 		if check(mid) {
-			right = mid - 1
+			hi = mid
 		} else {
-			left = mid + 1
+			lo = mid + 1
 		}
 	}
-	return left
+
+	return lo
 }
