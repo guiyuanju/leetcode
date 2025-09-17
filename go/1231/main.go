@@ -22,40 +22,32 @@ func assertEq[T comparable](a, b T) {
 }
 
 func maximizeSweetness(sweetness []int, k int) int {
-	check := func(sweet int) bool {
-		var i, j int
-		for ; i <= k; i++ {
-			var cur int
-			for ; j < len(sweetness) && cur < sweet; j++ {
-				cur += sweetness[j]
-			}
-
-			if cur < sweet {
-				return false
-			}
-
-			if j == len(sweetness) && i < k {
-				return false
+	check := func(g int) bool {
+		var cur, count int
+		for _, s := range sweetness {
+			cur += s
+			if cur >= g {
+				cur = 0
+				count++
 			}
 		}
-
-		return true
+		return count >= k+1
 	}
 
-	left := 1
-	right := 0
+	lo := 0
+	hi := 1
 	for _, s := range sweetness {
-		right += s
+		hi += s
 	}
 
-	for left <= right {
-		mid := left + (right-left)/2
+	for lo < hi {
+		mid := lo + (hi-lo)/2
 		if check(mid) {
-			left = mid + 1
+			lo = mid + 1
 		} else {
-			right = mid - 1
+			hi = mid
 		}
 	}
 
-	return right
+	return lo - 1
 }
