@@ -51,37 +51,46 @@ func assertEq(a, b any) {
 }
 
 func fullBloomFlowers(flowers [][]int, people []int) []int {
-	starts := make([]int, len(flowers))
+	start := make([]int, len(flowers))
+	end := make([]int, len(flowers))
 	for i, f := range flowers {
-		starts[i] = f[0]
+		start[i] = f[0]
+		end[i] = f[1]
 	}
-	slices.Sort(starts)
+	slices.Sort(start)
+	slices.Sort(end)
 
-	ends := make([]int, len(flowers))
-	for i, f := range flowers {
-		ends[i] = f[1]
-	}
-	slices.Sort(ends)
-
-	bsWith := func(x int, xs []int, cmp func(a, b int) bool) int {
-		left := 0
-		right := len(xs)
-		for left < right {
-			mid := left + (right-left)/2
-			if cmp(xs[mid], x) {
-				right = mid
+	bsRightMost := func(target int, arr []int) int {
+		lo := 0
+		hi := len(arr)
+		for lo < hi {
+			mid := lo + (hi-lo)/2
+			if arr[mid] <= target {
+				lo = mid + 1
 			} else {
-				left = mid + 1
+				hi = mid
 			}
 		}
-		return left
+		return lo
+	}
+
+	bsLeftMost := func(target int, arr []int) int {
+		lo := 0
+		hi := len(arr)
+		for lo < hi {
+			mid := lo + (hi-lo)/2
+			if arr[mid] >= target {
+				hi = mid
+			} else {
+				lo = mid + 1
+			}
+		}
+		return lo
 	}
 
 	res := make([]int, len(people))
 	for i, p := range people {
-		start := bsWith(p, starts, func(a, b int) bool { return a > b }) // right insertion position
-		end := bsWith(p, ends, func(a, b int) bool { return a >= b })    // left insertion position
-		res[i] = start - end
+		res[i] = bsRightMost(p, start) - bsLeftMost(p, end)
 	}
 	return res
 }
