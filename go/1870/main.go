@@ -28,28 +28,30 @@ func assertEq[T comparable](a, b T) {
 }
 
 func minSpeedOnTime(dist []int, hour float64) int {
-	check := func(speed int) bool {
+	time := func(speed int) float64 {
 		var res float64
-		for _, d := range dist[:len(dist)-1] {
-			res += math.Ceil(float64(d) / float64(speed))
+		for i := range len(dist) - 1 {
+			res += math.Ceil(float64(dist[i]) / float64(speed))
 		}
-		res += float64(dist[len(dist)-1]) / float64(speed)
-		return res <= hour
+		return res + float64(dist[len(dist)-1])/float64(speed)
 	}
 
-	var left, right int
-	right = 1e7
+	lo := 1
+	var hi int = 1e7 + 1
+	old := hi
 
-	for left <= right {
-		mid := left + (right-left)/2
-		if check(mid) {
-			right = mid - 1
+	for lo < hi {
+		mid := lo + (hi-lo)/2
+		// fmt.Println(lo, hi, mid, time(mid))
+		if time(mid) <= hour {
+			hi = mid
 		} else {
-			left = mid + 1
+			lo = mid + 1
 		}
 	}
-	if left > 1e7 {
+
+	if hi == old {
 		return -1
 	}
-	return left
+	return lo
 }
