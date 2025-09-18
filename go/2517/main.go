@@ -27,33 +27,28 @@ func assertEq(a, b any) {
 
 func maximumTastiness(price []int, k int) int {
 	slices.Sort(price)
-
-	check := func(diff int) bool {
+	check := func(g int) bool {
+		cur := price[0]
 		count := 1
-		prev := price[0]
 		for i := 1; i < len(price); i++ {
-			if price[i]-prev >= diff {
+			if price[i]-cur >= g {
+				cur = price[i]
 				count++
-				prev = price[i]
-			}
-			if count >= k {
-				return true
 			}
 		}
-		return false
+		return count >= k
 	}
 
-	var left, right int
-	right = price[len(price)-1] - price[0] + 1
-
-	for left < right {
-		mid := left + (right-left)/2
+	lo := 0
+	hi := price[len(price)-1] - price[0] + 1
+	for lo < hi {
+		mid := lo + (hi-lo)/2
 		if check(mid) {
-			left = mid + 1
+			lo = mid + 1
 		} else {
-			right = mid
+			hi = mid
 		}
 	}
 
-	return left - 1
+	return lo - 1
 }
