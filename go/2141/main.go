@@ -22,27 +22,27 @@ func assertEq(a, b any) {
 }
 
 func maxRunTime(n int, batteries []int) int64 {
-	check := func(g int64) bool {
-		var res int64
-		for _, b := range batteries {
-			res += min(g, int64(b))
+	check := func(g int) bool {
+		var res int
+		for _, n := range batteries {
+			res += min(n, g)
 		}
-		return res >= g*int64(n)
+		return res >= n*g
 	}
 
-	var left, right int64
-	for _, b := range batteries {
-		right += int64(b)
+	var lo, hi int
+	for _, n := range batteries {
+		hi += n
 	}
-	right /= int64(n)
-	right++
-	for left < right {
-		mid := left + (right-left)/2
+	hi = hi/n + 1
+
+	for lo < hi {
+		mid := lo + (hi-lo)/2
 		if check(mid) {
-			left = mid + 1
+			lo = mid + 1
 		} else {
-			right = mid
+			hi = mid
 		}
 	}
-	return left - 1
+	return int64(lo - 1)
 }
