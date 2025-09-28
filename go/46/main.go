@@ -18,6 +18,7 @@ func main() {
 
 func permute(nums []int) [][]int {
 	var res [][]int
+
 	var bt func([]int)
 	bt = func(cur []int) {
 		if len(cur) == len(nums) {
@@ -30,6 +31,8 @@ func permute(nums []int) [][]int {
 			}
 		}
 	}
+
 	bt(nil)
+
 	return res
 }
