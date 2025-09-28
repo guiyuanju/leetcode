@@ -13,12 +13,16 @@ func main() {
 }
 
 func permuteUnique(nums []int) [][]int {
-	var res [][]int
 	count := map[int]int{}
+	for _, n := range nums {
+		count[n]++
+	}
+
+	var res [][]int
 	var bt func(cur []int)
 	bt = func(cur []int) {
 		if len(cur) == len(nums) {
-			res = append(res, append([]int(nil), cur...))
+			res = append(res, append([]int{}, cur...))
 			return
 		}
 
@@ -31,9 +35,6 @@ func permuteUnique(nums []int) [][]int {
 		}
 	}
 
-	for _, n := range nums {
-		count[n]++
-	}
 	bt(nil)
 
 	return res
