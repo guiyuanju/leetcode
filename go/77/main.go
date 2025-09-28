@@ -9,18 +9,21 @@ func main() {
 
 func combine(n int, k int) [][]int {
 	var res [][]int
-	var bt func(cur []int, i int)
-	bt = func(cur []int, i int) {
+	var bt func(i int, cur []int)
+	bt = func(i int, cur []int) {
 		if len(cur) == k {
-			res = append(res, append([]int(nil), cur...))
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
 			return
 		}
+
 		for j := i; j <= n; j++ {
-			cur = append(cur, j)
-			bt(cur, j+1)
-			cur = cur[:len(cur)-1]
+			bt(j+1, append(cur, j))
 		}
 	}
-	bt(nil, 1)
+
+	bt(1, nil)
+
 	return res
 }
