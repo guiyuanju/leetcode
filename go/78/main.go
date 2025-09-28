@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
 	nums := []int{1, 2, 3}
@@ -12,17 +14,18 @@ func main() {
 
 func subsets(nums []int) [][]int {
 	var res [][]int
-	var bt func(cur []int, i int)
-	bt = func(cur []int, i int) {
+	var bt func(i int, cur []int)
+	bt = func(i int, cur []int) {
 		tmp := make([]int, len(cur))
 		copy(tmp, cur)
 		res = append(res, tmp)
+
 		for j := i; j < len(nums); j++ {
-			cur = append(cur, nums[j])
-			bt(cur, j+1)
-			cur = cur[:len(cur)-1]
+			bt(j+1, append(cur, nums[j]))
 		}
 	}
-	bt(nil, 0)
+
+	bt(0, nil)
+
 	return res
 }
