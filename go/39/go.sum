@@ -1,2 +1,6 @@
 github.com/guiyuanju/lcutils v0.0.2 h1:rPuogxS4rLgQIEk6j8W7uivV1pvF8jbjr1wuSfEXrqI=
 github.com/guiyuanju/lcutils v0.0.2/go.mod h1:FZyoAEwIWThqTGqN84H4ajqfeusEcbIN+IY5S+iJCdc=
+github.com/guiyuanju/lcutils v0.0.4 h1:7zv2q2T8DAqp7XQObjKIOSF1EbskvDmFEZHsG33cGpc=
+github.com/guiyuanju/lcutils v0.0.4/go.mod h1:FZyoAEwIWThqTGqN84H4ajqfeusEcbIN+IY5S+iJCdc=
+github.com/guiyuanju/lcutils v0.1.5 h1:1tFnVl+pRABkVTMu+PHVxoGpSnsABvMcW3RX7TQjiCQ=
+github.com/guiyuanju/lcutils v0.1.5/go.mod h1:FZyoAEwIWThqTGqN84H4ajqfeusEcbIN+IY5S+iJCdc=

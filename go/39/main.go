@@ -15,19 +15,24 @@ func main() {
 
 func combinationSum(candidates []int, target int) [][]int {
 	var res [][]int
-	var bt func(cur []int, sum int, i int)
-	bt = func(cur []int, sum int, i int) {
-		if sum == target {
-			res = append(res, append([]int(nil), cur...))
-			return
-		}
+	var bt func(i int, cur []int, sum int)
+	bt = func(i int, cur []int, sum int) {
 		if sum > target {
 			return
 		}
+		if sum == target {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+			return
+		}
+
 		for j := i; j < len(candidates); j++ {
-			bt(append(cur, candidates[j]), sum+candidates[j], j)
+			bt(j, append(cur, candidates[j]), sum+candidates[j])
 		}
 	}
-	bt(nil, 0, 0)
+
+	bt(0, nil, 0)
+
 	return res
 }
