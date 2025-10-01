@@ -9,20 +9,24 @@ func main() {
 
 func generateParenthesis(n int) []string {
 	var res []string
-	var bt func(cur string, left, right int)
-	bt = func(cur string, left, right int) {
-		if len(cur) == n*2 {
-			res = append(res, cur)
+	var bt func(cur []byte, left int, right int)
+	bt = func(cur []byte, left int, right int) {
+		if left == n && right == n {
+			tmp := make([]byte, len(cur))
+			copy(tmp, cur)
+			res = append(res, string(tmp))
 			return
 		}
+
 		if left < n {
-			bt(cur+"(", left+1, right)
+			bt(append(cur, '('), left+1, right)
 		}
-		if left > right {
-			bt(cur+")", left, right+1)
+		if right < left {
+			bt(append(cur, ')'), left, right+1)
 		}
 	}
 
-	bt("", 0, 0)
+	bt(nil, 0, 0)
+
 	return res
 }
