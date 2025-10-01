@@ -9,18 +9,24 @@ func main() {
 	candidates := []int{10, 1, 2, 7, 6, 1, 5}
 	fmt.Println(combinationSum2(candidates, 8))
 
-	candidates = []int{2, 5, 2, 1, 2}
-	fmt.Println(combinationSum2(candidates, 5))
+	fmt.Println(combinationSum2([]int{2, 5, 2, 1, 2}, 5))
+
+	fmt.Println(combinationSum2([]int{1, 7, 1}, 8))
 }
 
 func combinationSum2(candidates []int, target int) [][]int {
 	slices.Sort(candidates)
-	var res [][]int
 
-	var bt func(cur []int, i int, sum int)
-	bt = func(cur []int, i int, sum int) {
+	var res [][]int
+	var bt func(i int, sum int, cur []int)
+	bt = func(i int, sum int, cur []int) {
+		if sum > target {
+			return
+		}
 		if sum == target {
-			res = append(res, append([]int(nil), cur...))
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
 			return
 		}
 
@@ -28,15 +34,11 @@ func combinationSum2(candidates []int, target int) [][]int {
 			if j > i && candidates[j] == candidates[j-1] {
 				continue
 			}
-			newSum := sum + candidates[j]
-			if newSum > target {
-				break
-			}
-			bt(append(cur, candidates[j]), j+1, newSum)
+			bt(j+1, sum+candidates[j], append(cur, candidates[j]))
 		}
 	}
 
-	bt(nil, 0, 0)
+	bt(0, 0, nil)
 
 	return res
 }
