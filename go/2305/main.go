@@ -16,31 +16,27 @@ func main() {
 
 func distributeCookies(cookies []int, k int) int {
 	res := math.MaxInt
-	unfairness := make([]int, k)
-	var bt func(i int, maximum int, leftChild int)
-	bt = func(i int, maximum int, leftChild int) {
+	count := make([]int, k)
+
+	var bt func(i int, hi int)
+	bt = func(i int, hi int) {
 		if i == len(cookies) {
-			res = maximum
+			res = min(res, hi)
+			return
+		}
+
+		if hi >= res {
 			return
 		}
 
 		for j := range k {
-			newLeftChild := leftChild
-			if unfairness[j] == 0 {
-				newLeftChild--
-			}
-			unfairness[j] += cookies[i]
-			newMaximum := max(maximum, unfairness[j])
-			if newMaximum >= res || newLeftChild > k-j-1 {
-				unfairness[j] -= cookies[i]
-				continue
-			}
-			bt(i+1, newMaximum, newLeftChild)
-			unfairness[j] -= cookies[i]
+			count[j] += cookies[i]
+			bt(i+1, max(hi, count[j]))
+			count[j] -= cookies[i]
 		}
 	}
 
-	bt(0, 0, k)
+	bt(0, 0)
 
 	return res
 }
