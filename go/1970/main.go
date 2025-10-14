@@ -47,61 +47,54 @@ func assertEq(a, b any) {
 }
 
 func latestDayToCross(row int, col int, cells [][]int) int {
-	water := make([][]int, row)
-	for i := range water {
-		water[i] = make([]int, col)
+	g := make([][]int, row)
+	for i := range row {
+		g[i] = make([]int, col)
 	}
 	for i, c := range cells {
-		water[c[0]-1][c[1]-1] = i + 1
+		g[c[0]-1][c[1]-1] = i + 1
 	}
 
-	valid := func(r, c int) bool {
-		return 0 <= r && r < row && 0 <= c && c < col
-	}
-	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-	seen := make([][]bool, row)
-	for i := range len(seen) {
-		seen[i] = make([]bool, col)
-	}
-	check := func(day int) bool {
-		var q [][]int
+	check := func(guess int) bool {
+		valid := func(r, c int) bool {
+			return 0 <= r && r < row && 0 <= c && c < col
+		}
+		directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+
+		queue := [][2]int{}
+		seen := map[[2]int]bool{}
 		for i := range col {
-			if day < water[0][i] {
-				q = append(q, []int{0, i})
+			if guess < g[0][i] {
+				queue = append(queue, [2]int{0, i})
+				seen[[2]int{0, i}] = true
 			}
 		}
-		// clear seen
-		for i := range row {
-			for j := range col {
-				seen[i][j] = false
-			}
-		}
-		for len(q) > 0 {
-			cur := q[0]
-			q = q[1:]
+		for len(queue) > 0 {
+			cur := queue[0]
+			queue = queue[1:]
 			if cur[0] == row-1 {
 				return true
 			}
 			for _, dir := range directions {
-				nextRow, nextCol := cur[0]+dir[0], cur[1]+dir[1]
-				if valid(nextRow, nextCol) && !seen[nextRow][nextCol] && water[nextRow][nextCol] > day {
-					seen[nextRow][nextCol] = true
-					q = append(q, []int{nextRow, nextCol})
+				nr, nc := dir[0]+cur[0], dir[1]+cur[1]
+				if valid(nr, nc) && !seen[[2]int{nr, nc}] && guess < g[nr][nc] {
+					seen[[2]int{nr, nc}] = true
+					queue = append(queue, [2]int{nr, nc})
 				}
 			}
 		}
 		return false
 	}
 
-	left := 0
-	right := len(cells) + 1
-	for left < right {
-		mid := left + (right-left)/2
+	lo := 0
+	hi := len(cells) + 1
+	for lo < hi {
+		mid := lo + (hi-lo)/2
 		if check(mid) {
-			left = mid + 1
+			lo = mid + 1
 		} else {
-			right = mid
+			hi = mid
 		}
 	}
-	return left - 1
+	return lo - 1
 }

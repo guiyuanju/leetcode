@@ -1,6 +1,8 @@
 package main
 
-import "sort"
+import (
+	"sort"
+)
 
 func twoSum1(nums []int, target int) []int {
 	exist := map[int]int{}
@@ -12,6 +14,7 @@ func twoSum1(nums []int, target int) []int {
 	}
 	return nil
 }
+
 func twoSum2(nums []int, target int) []int {
 	newNums := make([]item, len(nums))
 	for i, n := range nums {
@@ -30,6 +33,7 @@ func twoSum2(nums []int, target int) []int {
 			i++
 		}
 	}
+
 	return nil
 }
 
