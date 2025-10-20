@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 func main() {
 	nums := []int{4, 6, 7, 7}
@@ -12,26 +15,25 @@ func main() {
 
 func findSubsequences(nums []int) [][]int {
 	var res [][]int
-	var bt func(cur []int, i int)
-	bt = func(cur []int, i int) {
-		if len(cur) > 1 {
-			res = append(res, append([]int(nil), cur...))
-		}
 
-		selected := make(map[int]bool, len(nums)-i)
+	var bt func(i int, cur []int)
+	bt = func(i int, cur []int) {
+		if i > len(nums) {
+			return
+		}
+		if len(cur) >= 2 {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		}
 		for j := i; j < len(nums); j++ {
-			if len(cur) > 0 && nums[j] < cur[len(cur)-1] {
-				continue
+			if !slices.Contains(nums[i:j], nums[j]) && (len(cur) == 0 || nums[j] >= cur[len(cur)-1]) {
+				bt(j+1, append(cur, nums[j]))
 			}
-			if selected[nums[j]] {
-				continue
-			}
-			selected[nums[j]] = true
-			bt(append(cur, nums[j]), j+1)
 		}
 	}
 
-	bt(nil, 0)
+	bt(0, nil)
 
 	return res
 }
