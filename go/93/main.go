@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 func main() {
@@ -22,37 +21,35 @@ func main() {
 
 func restoreIpAddresses(s string) []string {
 	var res []string
-	var bt func(cur []string, i int)
-	bt = func(cur []string, i int) {
-		if len(cur) == 4 {
-			if i == len(s) {
-				res = append(res, strings.Join(cur, "."))
+	var bt func(i int, left int, cur []byte)
+	bt = func(i int, left int, cur []byte) {
+		if left == 0 {
+			if valid([]byte(s[i:])) {
+				cur = append(cur, s[i:]...)
+				res = append(res, string(cur))
 			}
 			return
 		}
-		if i >= len(s) {
-			return
-		}
-
-		if s[i] == '0' {
-			bt(append(cur, "0"), i+1)
-			return
-		}
-
 		for j := i; j < len(s); j++ {
-			part := s[i : j+1]
-			if !valid(part) {
-				break
+			if valid([]byte(s[i : j+1])) {
+				newCur := append(cur, ([]byte(s[i : j+1]))...)
+				bt(j+1, left-1, append(newCur, '.'))
 			}
-			bt(append(cur, part), j+1)
 		}
 	}
 
-	bt(nil, 0)
+	bt(0, 3, nil)
+
 	return res
 }
 
-func valid(s string) bool {
-	n, _ := strconv.Atoi(s)
-	return n <= 255
+func valid(s []byte) bool {
+	if len(s) > 3 || len(s) == 0 {
+		return false
+	}
+	if s[0] == '0' && len(s) > 1 {
+		return false
+	}
+	i, _ := strconv.ParseInt(string(s), 10, 64)
+	return i <= 255
 }
