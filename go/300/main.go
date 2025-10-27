@@ -6,50 +6,89 @@ import (
 	"github.com/guiyuanju/lcutils/assert"
 )
 
+// 1. backtrack
+// 2. DP, since there is duplicate computation in searching (if 1 < 2 < 3, no need to seach 3 after 2)
+// 3. greedy + bs
+// 4. binary indexed tree
+// 5. segment tree
+
 func main() {
 	assert.Eq(4, lengthOfLIS([]int{10, 9, 2, 5, 3, 7, 101, 18}))
 	assert.Eq(4, lengthOfLIS([]int{0, 1, 0, 3, 2, 3}))
 	assert.Eq(1, lengthOfLIS([]int{7, 7, 7, 7, 7, 7, 7}))
 	assert.Eq(3, lengthOfLIS([]int{4, 10, 4, 3, 8, 9}))
+	assert.Eq(6, lengthOfLIS([]int{1, 3, 6, 7, 9, 4, 10, 5, 6}))
 }
 
-func lengthOfLIS2(nums []int) int {
-	var dp func(i int) (lenght int)
-	dp = func(i int) (lenght int) {
+func lengthOfLIS(nums []int) int {
+	return lengthOfLIS_DP_BU(nums)
+}
+
+func lengthOfLIS_DP_TD(nums []int) int {
+	memo := make([]int, len(nums))
+	for i := range memo {
+		memo[i] = -1
+	}
+
+	var dp func(i int) int
+	dp = func(i int) int {
+		if memo[i] != -1 {
+			return memo[i]
+		}
+
 		if i == 0 {
 			return 1
 		}
 
-		res := 1
-		for j := i - 1; j >= 0; j-- {
+		var res int
+		for j := range i {
 			if nums[j] < nums[i] {
-				res = max(res, dp(j)+1)
+				res = max(res, dp(j))
 			}
 		}
+		res++
+
+		memo[i] = res
 
 		return res
 	}
 
 	var res int
-	for i := range len(nums) {
+	for i := range nums {
 		res = max(res, dp(i))
 	}
 	return res
 }
 
-func lengthOfLIS(nums []int) int {
+func lengthOfLIS_DP_BU(nums []int) int {
 	dp := make([]int, len(nums))
 	dp[0] = 1
-
 	for i := 1; i < len(nums); i++ {
-		res := 1
-		for j := i - 1; j >= 0; j-- {
+		var res int
+		for j := range i {
 			if nums[j] < nums[i] {
-				res = max(res, dp[j]+1)
+				res = max(res, dp[j])
 			}
 		}
-		dp[i] = res
+		dp[i] = res + 1
+	}
+	return slices.Max(dp)
+}
+
+func lengthOfLIS_BT(nums []int) int {
+	var res int
+	var bt func(i int, length int, cur int)
+	bt = func(i int, length int, cur int) {
+		res = max(res, length)
+
+		for j := i; j < len(nums); j++ {
+			if length > 0 && nums[j] > cur || length == 0 {
+				bt(j+1, length+1, nums[j])
+			}
+		}
 	}
 
-	return slices.Max(dp)
+	bt(0, 0, 0)
+
+	return res
 }
