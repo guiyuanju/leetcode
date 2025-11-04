@@ -21,7 +21,7 @@ func main() {
 }
 
 func lengthOfLIS(nums []int) int {
-	return lengthOfLIS_DP_BU(nums)
+	return lengthOfLIS_Greedy(nums)
 }
 
 func lengthOfLIS_DP_TD(nums []int) int {
@@ -91,4 +91,23 @@ func lengthOfLIS_BT(nums []int) int {
 	bt(0, 0, 0)
 
 	return res
+}
+
+// O(n^2), can use binary search -> O(n*long(n))
+func lengthOfLIS_Greedy(nums []int) int {
+	var cur []int
+	for _, n := range nums {
+		set := false
+		for i, v := range cur {
+			if n <= v {
+				cur[i] = n
+				set = true
+				break
+			}
+		}
+		if !set {
+			cur = append(cur, n)
+		}
+	}
+	return len(cur)
 }

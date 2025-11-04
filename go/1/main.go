@@ -1,8 +1,6 @@
 package main
 
-import (
-	"sort"
-)
+import "sort"
 
 func twoSum1(nums []int, target int) []int {
 	exist := map[int]int{}
