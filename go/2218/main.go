@@ -7,56 +7,58 @@ func main() {
 	fmt.Println(maxValueOfCoins([][]int{{100}, {100}, {100}, {100}, {100}, {100}, {1, 1, 1, 1, 1, 1, 700}}, 7))
 }
 
-func toString(xs []int, x int) string {
-	return fmt.Sprintf("%v%d", xs, x)
+func maxValueOfCoins(piles [][]int, k int) int {
+	// return maxValueOfCoinsTD(piles, k)
+	return maxValueOfCoinsBU(piles, k)
 }
 
 // top down
-func maxValueOfCoins2(piles [][]int, k int) int {
-	memo := map[[2]int]int{}
+func maxValueOfCoinsTD(piles [][]int, k int) int {
+	type key struct{ i, left int }
+	memo := map[key]int{}
 
-	var dp func(i int, k int) int
-	dp = func(i int, k int) int {
-		if v, ok := memo[[2]int{i, k}]; ok {
+	var dp func(i, left int) int
+	dp = func(i, left int) int {
+		if v, ok := memo[key{i, left}]; ok {
 			return v
 		}
 
-		if k <= 0 || i < 0 {
+		if i == len(piles) || left == 0 {
 			return 0
 		}
 
-		var sum int
-		res := dp(i-1, k)
-		for j := 1; j <= k && j <= len(piles[i]); j++ {
-			sum += piles[i][j-1]
-			res = max(res, sum+dp(i-1, k-j))
+		var cur int
+		res := dp(i+1, left)
+		for j := range min(left, len(piles[i])) {
+			cur += piles[i][j]
+			res = max(res, cur+dp(i+1, left-j-1))
 		}
 
-		memo[[2]int{i, k}] = res
+		memo[key{i, left}] = res
+
 		return res
 	}
 
-	return dp(len(piles)-1, k)
+	return dp(0, k)
 }
 
-// bottom up
-func maxValueOfCoins(piles [][]int, k int) int {
-	dp := make([][]int, k+1)
+func maxValueOfCoinsBU(piles [][]int, k int) int {
+	dp := make([][]int, len(piles)+1)
 	for i := range dp {
-		dp[i] = make([]int, len(piles)+1)
+		dp[i] = make([]int, k+1)
 	}
 
-	for i := 1; i <= k; i++ {
-		for j := 1; j <= len(piles); j++ {
-			var sum int
-			res := dp[i][j-1]
-			for k := 1; k <= i && k <= len(piles[j-1]); k++ {
-				sum += piles[j-1][k-1]
-				res = max(res, sum+dp[i-k][j-1])
+	for i := len(piles) - 1; i >= 0; i-- {
+		for j := 1; j <= k; j++ {
+			var cur int
+			res := dp[i+1][j]
+			for k := range min(j, len(piles[i])) {
+				cur += piles[i][k]
+				res = max(res, cur+dp[i+1][j-k-1])
 			}
 			dp[i][j] = res
 		}
 	}
 
-	return dp[k][len(piles)]
+	return dp[0][k]
 }
