@@ -10,81 +10,60 @@ func main() {
 	fmt.Println(minPathSum([][]int{{1, 2, 3}, {4, 5, 6}}))
 }
 
-// top down with memo omitted
-func minPathSum1(grid [][]int) int {
+func minPathSum(grid [][]int) int {
+	// return minPathSumTD(grid)
+	return minPathSumBU(grid)
+}
+
+func minPathSumTD(grid [][]int) int {
 	m := len(grid)
 	n := len(grid[0])
+
+	memo := map[[2]int]int{}
 	var dp func(r, c int) int
 	dp = func(r, c int) int {
+		if v, ok := memo[[2]int{r, c}]; ok {
+			return v
+		}
+
 		if r == m-1 && c == n-1 {
-			return grid[r][c]
+			return grid[m-1][n-1]
 		}
 
 		res := math.MaxInt
-		if r < m-1 {
-			res = min(res, dp(r+1, c))
+		if r+1 < m {
+			res = min(res, grid[r][c]+dp(r+1, c))
 		}
-		if c < n-1 {
-			res = min(res, dp(r, c+1))
+		if c+1 < n {
+			res = min(res, grid[r][c]+dp(r, c+1))
 		}
 
-		return res + grid[r][c]
+		memo[[2]int{r, c}] = res
+
+		return res
 	}
 
 	return dp(0, 0)
 }
 
-// bottom up
-func minPathSum2(grid [][]int) int {
+func minPathSumBU(grid [][]int) int {
+	dp := grid
 	m := len(grid)
 	n := len(grid[0])
-	dp := make([][]int, m)
-	for i := range dp {
-		dp[i] = make([]int, n)
-	}
-	dp[m-1][n-1] = grid[m-1][n-1]
-
-	for i := m - 1; i >= 0; i-- {
-		for j := n - 1; j >= 0; j-- {
-			if i == m-1 && j == n-1 {
+	for r := m - 1; r >= 0; r-- {
+		for c := n - 1; c >= 0; c-- {
+			if r == m-1 && c == n-1 {
 				continue
 			}
 			res := math.MaxInt
-			if i < m-1 {
-				res = min(res, dp[i+1][j])
+			if r+1 < m {
+				res = min(res, grid[r][c]+dp[r+1][c])
 			}
-			if j < n-1 {
-				res = min(res, dp[i][j+1])
+			if c+1 < n {
+				res = min(res, grid[r][c]+dp[r][c+1])
 			}
-			dp[i][j] = res + grid[i][j]
+			dp[r][c] = res
 		}
 	}
-
 	return dp[0][0]
-}
-
-// bottom up with space optimized to O(n)
-func minPathSum(grid [][]int) int {
-	m := len(grid)
-	n := len(grid[0])
-	dp := make([]int, n)
-	dp[n-1] = grid[m-1][n-1]
-
-	for i := m - 1; i >= 0; i-- {
-		for j := n - 1; j >= 0; j-- {
-			if i == m-1 && j == n-1 {
-				continue
-			}
-			res := math.MaxInt
-			if i < m-1 {
-				res = min(res, dp[j])
-			}
-			if j < n-1 {
-				res = min(res, dp[j+1])
-			}
-			dp[j] = res + grid[i][j]
-		}
-	}
-
-	return dp[0]
 }
