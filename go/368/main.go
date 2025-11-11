@@ -13,38 +13,20 @@ func main() {
 	assert.Eq([]int{4, 8, 16}, largestDivisibleSubset([]int{3, 4, 16, 8})) // 4, 8, 16
 }
 
-func largestDivisibleSubsetBT(nums []int) []int {
-	var res []int
-	var bt func(cur []int, i int)
-	bt = func(cur []int, i int) {
-		if len(cur) > len(res) {
-			res = append([]int(nil), cur...)
-		}
-
-	outer:
-		for j := i; j < len(nums); j++ {
-			if len(cur) == 0 {
-				bt(append(cur, nums[j]), j+1)
-			} else {
-				for _, n := range cur {
-					if n%nums[j] != 0 && nums[j]%n != 0 {
-						continue outer
-					}
-				}
-				bt(append(cur, nums[j]), j+1)
-			}
-		}
-	}
-
-	bt(nil, 0)
-
-	return res
+func largestDivisibleSubset(nums []int) []int {
+	// return largestDivisibleSubsetTD(nums)
+	return largestDivisibleSubsetBU(nums)
 }
 
-func largestDivisibleSubset2(nums []int) []int {
-	slices.Sort(nums)
+func largestDivisibleSubsetTD(nums []int) []int {
+	memo := map[int][]int{}
+
 	var dp func(i int) []int
 	dp = func(i int) []int {
+		if v, ok := memo[i]; ok {
+			return v
+		}
+
 		if i == 0 {
 			return []int{nums[0]}
 		}
@@ -58,8 +40,17 @@ func largestDivisibleSubset2(nums []int) []int {
 				}
 			}
 		}
-		return append(res, nums[i])
+		tmp := make([]int, len(res), len(res)+1)
+		copy(tmp, res)
+		tmp = append(tmp, nums[i])
+		res = tmp
+
+		memo[i] = res
+
+		return res
 	}
+
+	slices.Sort(nums)
 
 	var res []int
 	for i := range nums {
@@ -71,26 +62,38 @@ func largestDivisibleSubset2(nums []int) []int {
 	return res
 }
 
-func largestDivisibleSubset(nums []int) []int {
+func largestDivisibleSubsetBU(nums []int) []int {
 	slices.Sort(nums)
-	dp := make([][]int, len(nums)+1)
-	dp[0] = []int{nums[0]}
+	dp := make([]int, len(nums))
+	dp[0] = 1
+	prev := make([]int, len(nums))
+	for i := range prev {
+		prev[i] = -1
+	}
 
 	for i := 1; i < len(nums); i++ {
 		for j := range i {
-			if len(dp[j]) > len(dp[i]) && nums[i]%nums[j] == 0 {
-				dp[i] = make([]int, len(dp[j]))
-				copy(dp[i], dp[j])
+			if nums[i]%nums[j] == 0 && dp[j] > dp[i] {
+				dp[i] = dp[j]
+				prev[i] = j
 			}
 		}
-		dp[i] = append(dp[i], nums[i])
+		dp[i]++
+	}
+
+	var length, idx int
+	for i := range dp {
+		if dp[i] > length {
+			length = dp[i]
+			idx = i
+		}
 	}
 
 	var res []int
-	for _, v := range dp {
-		if len(v) > len(res) {
-			res = v
-		}
+	for idx != -1 {
+		res = append(res, nums[idx])
+		idx = prev[idx]
 	}
+	slices.Reverse(res)
 	return res
 }
