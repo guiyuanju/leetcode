@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"math"
 
 	"github.com/guiyuanju/lcutils/assert"
 )
@@ -11,68 +11,45 @@ func main() {
 	assert.Eq("Alice", stoneGameIII([]int{1, 2, 3, -9}))
 	assert.Eq("Tie", stoneGameIII([]int{1, 2, 3, 6}))
 	assert.Eq("Tie", stoneGameIII([]int{-1, -2, -3}))
+	assert.Eq("Bob", stoneGameIII([]int{-2}))
 }
 
 func stoneGameIII(stoneValue []int) string {
-	type state struct {
-		alice bool
-		i     int
-	}
-	memo := map[state][]int{}
-
-	var dp func(alice bool, i int) (aliceScore int, bobScore int)
-	dp = func(alice bool, i int) (int, int) {
-		if v, ok := memo[state{alice, i}]; ok {
-			return v[0], v[1]
+	memo := map[[2]int][2]int{}
+	var dp func(i int, who int) [2]int // 0 - alice, 1 - bob
+	dp = func(i int, who int) [2]int {
+		if v, ok := memo[[2]int{i, who}]; ok {
+			return v
 		}
 
 		if i >= len(stoneValue) {
-			return 0, 0
+			return [2]int{0, 0}
 		}
 
-		as1, bs1 := dp(!alice, i+1)
-		as2, bs2 := dp(!alice, i+2)
-		as3, bs3 := dp(!alice, i+3)
-
-		results := [][]int{{as1, bs1}, {as2, bs2}, {as3, bs3}}
-		if alice {
-			var sum int
-			for j := 0; j < 3 && i+j < len(stoneValue); j++ {
-				sum += stoneValue[i+j]
-				results[j][0] += sum
-			}
-			maximum := results[0]
-			for j := 0; j < 3 && i+j < len(stoneValue); j++ {
-				if results[j][0] > maximum[0] {
-					maximum = results[j]
+		var toTake int
+		res := [2]int{math.MinInt, math.MinInt}
+		for j := range 3 {
+			if i+j < len(stoneValue) {
+				cur := dp(i+j+1, 1-who)
+				toTake += stoneValue[i+j]
+				if cur[who]+toTake > res[who] {
+					res[who] = cur[who] + toTake
+					res[1-who] = cur[1-who]
 				}
 			}
-			memo[state{alice, i}] = maximum
-			return maximum[0], maximum[1]
-		} else {
-			var sum int
-			for j := 0; j < 3 && i+j < len(stoneValue); j++ {
-				sum += stoneValue[i+j]
-				results[j][1] += sum
-			}
-			maximum := results[0]
-			for j := 0; j < 3 && i+j < len(stoneValue); j++ {
-				if results[j][1] > maximum[1] {
-					maximum = results[j]
-				}
-			}
-			memo[state{alice, i}] = maximum
-			return maximum[0], maximum[1]
 		}
+
+		memo[[2]int{i, who}] = res
+
+		return res
 	}
 
-	a, b := dp(true, 0)
-	fmt.Println(a, b)
-	if a > b {
-		return "Alice"
-	} else if a < b {
-		return "Bob"
-	} else {
+	res := dp(0, 0)
+	if res[0] == res[1] {
 		return "Tie"
+	} else if res[0] > res[1] {
+		return "Alice"
+	} else {
+		return "Bob"
 	}
 }
