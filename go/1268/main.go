@@ -9,47 +9,42 @@ func main() {
 	products := []string{"mobile", "mouse", "moneypot", "monitor", "mousepad"}
 	searchWrod := "mouse"
 	fmt.Println(suggestedProducts(products, searchWrod))
+
+	fmt.Println(suggestedProducts([]string{"havana"}, "havana"))
 }
 
 func suggestedProducts(products []string, searchWord string) [][]string {
 	type Node struct {
-		val      byte
 		children map[byte]*Node
-		words    []string
-	}
-	newNode := func(val byte) *Node {
-		return &Node{val, map[byte]*Node{}, nil}
+		strings  []string
 	}
 
-	root := newNode(0)
+	slices.Sort(products)
 
+	root := Node{map[byte]*Node{}, []string{}}
 	for _, p := range products {
-		cur := root
-		for _, c := range p {
-			if _, ok := cur.children[byte(c)]; !ok {
-				cur.children[byte(c)] = newNode(byte(c))
+		cur := &root
+		for _, c := range []byte(p) {
+			if _, ok := cur.children[c]; !ok {
+				cur.children[c] = &Node{map[byte]*Node{}, []string{}}
 			}
-			cur = cur.children[byte(c)]
-			cur.words = append(cur.words, p)
-			slices.Sort(cur.words)
-			if len(cur.words) > 3 {
-				cur.words = cur.words[:3]
+			cur = cur.children[c]
+			if len(cur.strings) < 3 {
+				cur.strings = append(cur.strings, p)
 			}
 		}
 	}
 
 	var res [][]string
-	cur := root
+	cur := &root
 	for _, c := range []byte(searchWord) {
-		if v, ok := cur.children[c]; ok {
-			cur = v
-			res = append(res, cur.words)
+		if _, ok := cur.children[c]; ok {
+			cur = cur.children[c]
+			res = append(res, cur.strings)
 		} else {
-			// make all following loop add nil
 			cur.children = map[byte]*Node{}
-			res = append(res, nil)
+			res = append(res, []string{})
 		}
 	}
-
 	return res
 }
