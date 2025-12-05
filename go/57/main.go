@@ -9,7 +9,7 @@ func main() {
 
 func insert(intervals [][]int, newInterval []int) [][]int {
 	var i int
-	res := make([][]int, 0, len(intervals)+1)
+	var res [][]int
 	for ; i < len(intervals); i++ {
 		if newInterval[0] < intervals[i][0] {
 			break
@@ -17,16 +17,15 @@ func insert(intervals [][]int, newInterval []int) [][]int {
 		res = append(res, intervals[i])
 	}
 
-	if i > 0 && res[len(res)-1][1] >= newInterval[0] {
-		res[len(res)-1][1] = max(res[len(res)-1][1], newInterval[1])
+	if i > 0 && res[i-1][1] >= newInterval[0] {
+		res[i-1][1] = max(res[i-1][1], newInterval[1])
 	} else {
 		res = append(res, newInterval)
 	}
 
 	for ; i < len(intervals); i++ {
-		last := res[len(res)-1]
-		if last[1] >= intervals[i][0] {
-			last[1] = max(last[1], intervals[i][1])
+		if res[len(res)-1][1] >= intervals[i][0] {
+			res[len(res)-1][1] = max(res[len(res)-1][1], intervals[i][1])
 		} else {
 			res = append(res, intervals[i])
 		}
