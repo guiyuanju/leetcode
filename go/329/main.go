@@ -8,89 +8,55 @@ func main() {
 	fmt.Println(longestIncreasingPath([][]int{{1}}))
 }
 
-func longestIncreasingPathDP(matrix [][]int) int {
-	m := len(matrix)
-	n := len(matrix[0])
-
-	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-	valid := func(r, c int) bool {
-		return 0 <= r && r < m && 0 <= c && c < n
-	}
-
-	memo := map[[2]int]int{}
-	var dp func(i, j int) int
-	dp = func(i, j int) int {
-		if v, ok := memo[[2]int{i, j}]; ok {
-			return v
-		}
-
-		var res int
-		for _, dir := range directions {
-			nextRow, nextCol := i+dir[0], j+dir[1]
-			if valid(nextRow, nextCol) && matrix[nextRow][nextCol] > matrix[i][j] {
-				res = max(res, dp(nextRow, nextCol))
-			}
-		}
-
-		memo[[2]int{i, j}] = res + 1
-
-		return res + 1
-	}
-
-	var res int
-	for i := range m {
-		for j := range n {
-			res = max(res, dp(i, j))
-		}
-	}
-	return res
-}
-
-// topological sort
 func longestIncreasingPath(matrix [][]int) int {
 	m := len(matrix)
 	n := len(matrix[0])
-
-	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	valid := func(r, c int) bool {
 		return 0 <= r && r < m && 0 <= c && c < n
 	}
+	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 
-	ind := make([][]int, m)
-	for i := range ind {
-		ind[i] = make([]int, n)
+	// compute indgrees
+	indegrees := make([][]int, m)
+	for i := range indegrees {
+		indegrees[i] = make([]int, n)
 	}
-
-	q := [][3]int{}
-	g := make(map[[2]int][][2]int, m*n)
-	for i := range m {
-		for j := range n {
-			var degree int
+	for r := range m {
+		for c := range n {
 			for _, dir := range directions {
-				nextRow, nextCol := i+dir[0], j+dir[1]
-				if valid(nextRow, nextCol) && matrix[i][j] > matrix[nextRow][nextCol] {
-					g[[2]int{nextRow, nextCol}] = append(g[[2]int{nextRow, nextCol}], [2]int{i, j})
-					degree++
+				nr, nc := r+dir[0], c+dir[1]
+				if valid(nr, nc) && matrix[r][c] < matrix[nr][nc] {
+					indegrees[nr][nc]++
 				}
 			}
-			ind[i][j] = degree
-			if degree == 0 {
-				q = append(q, [3]int{i, j, 1})
-			}
 		}
 	}
 
-	var res int
-	for len(q) > 0 {
-		cur := q[0]
-		q = q[1:]
-		res = max(res, cur[2])
-		for _, nei := range g[[2]int{cur[0], cur[1]}] {
-			ind[nei[0]][nei[1]]--
-			if ind[nei[0]][nei[1]] == 0 {
-				q = append(q, [3]int{nei[0], nei[1], cur[2] + 1})
+	// find the longest path
+	queue := [][2]int{}
+	for r := range m {
+		for c := range n {
+			if indegrees[r][c] == 0 {
+				queue = append(queue, [2]int{r, c})
 			}
 		}
+	}
+	var res int
+	for len(queue) > 0 {
+		for range len(queue) {
+			cur := queue[0]
+			queue = queue[1:]
+			for _, dir := range directions {
+				nr, nc := cur[0]+dir[0], cur[1]+dir[1]
+				if valid(nr, nc) && matrix[cur[0]][cur[1]] < matrix[nr][nc] {
+					indegrees[nr][nc]--
+					if indegrees[nr][nc] == 0 {
+						queue = append(queue, [2]int{nr, nc})
+					}
+				}
+			}
+		}
+		res++
 	}
 
 	return res
