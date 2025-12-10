@@ -8,42 +8,36 @@ func main() {
 }
 
 func canFinish(numCourses int, prerequisites [][]int) bool {
-	g := map[int][]int{}
+	graph := make(map[int][]int, numCourses)
+	indegrees := make([]int, numCourses)
 	for _, p := range prerequisites {
-		g[p[0]] = append(g[p[0]], p[1])
+		graph[p[1]] = append(graph[p[1]], p[0])
+		indegrees[p[0]]++
 	}
 
-	const (
-		White = 0
-		Gray  = 1
-		Black = 2
-	)
+	queue := []int{}
+	for i, in := range indegrees {
+		if in == 0 {
+			queue = append(queue, i)
+		}
+	}
 
-	states := make([]int, numCourses)
-	var dfs func(n int) bool
-	dfs = func(n int) bool {
-		if states[n] == Gray {
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		for _, nei := range graph[cur] {
+			indegrees[nei]--
+			if indegrees[nei] == 0 {
+				queue = append(queue, nei)
+			}
+		}
+	}
+
+	for _, in := range indegrees {
+		if in != 0 {
 			return false
 		}
-		if states[n] == Black {
-			return true
-		}
-		states[n] = Gray
-		for _, nei := range g[n] {
-			if !dfs(nei) {
-				return false
-			}
-		}
-		states[n] = Black
-		return true
 	}
 
-	for n := range numCourses {
-		if states[n] == White {
-			if !dfs(n) {
-				return false
-			}
-		}
-	}
 	return true
 }
