@@ -12,41 +12,39 @@ func main() {
 
 func findMinHeightTrees(n int, edges [][]int) []int {
 	if n == 1 {
-		return []int{0}
+		return []int{n}
 	}
 
-	g := make(map[int][]int, n)
-	degree := make([]int, n)
+	graph := make(map[int][]int, n)
+	degrees := make([]int, n)
 	for _, e := range edges {
-		g[e[0]] = append(g[e[0]], e[1])
-		g[e[1]] = append(g[e[1]], e[0])
-		degree[e[0]]++
-		degree[e[1]]++
+		graph[e[0]] = append(graph[e[0]], e[1])
+		graph[e[1]] = append(graph[e[1]], e[0])
+		degrees[e[0]]++
+		degrees[e[1]]++
 	}
 
-	q := []int{}
-	for n, d := range degree {
+	queue := []int{}
+	for i, d := range degrees {
 		if d == 1 {
-			q = append(q, n)
+			queue = append(queue, i)
 		}
 	}
 
-	remain := n - len(q)
-
+	remain := n - len(queue)
 	for remain > 0 {
-		length := len(q)
-		for range length {
-			cur := q[0]
-			q = q[1:]
-			for _, nei := range g[cur] {
-				degree[nei]--
-				if degree[nei] == 1 {
-					q = append(q, nei)
+		for range len(queue) {
+			cur := queue[0]
+			queue = queue[1:]
+			for _, nei := range graph[cur] {
+				degrees[nei]--
+				if degrees[nei] == 1 {
+					queue = append(queue, nei)
 					remain--
 				}
 			}
 		}
 	}
 
-	return q
+	return queue
 }
