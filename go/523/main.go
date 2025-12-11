@@ -11,27 +11,24 @@ func main() {
 	assert.Eq(false, checkSubarraySum([]int{1, 0}, 2))
 	assert.Eq(true, checkSubarraySum([]int{5, 0, 0, 0}, 3))
 	assert.Eq(false, checkSubarraySum([]int{1, 2, 12}, 6))
+	assert.Eq(false, checkSubarraySum([]int{1}, 1))
 }
 
-// (cur-sum)%k == 0
-// cur%k - sum%k == 0
-// sum%k == cur%k
 func checkSubarraySum(nums []int, k int) bool {
-	if len(nums) < 2 {
-		return false
-	}
-
-	sums := map[int]int{}
-	sums[0] = -1
+	// the end index (exclusive) of prefix sum
+	ends := map[int]int{}
+	ends[0] = 0
 	var cur int
-	for j := 0; j < len(nums); j++ {
-		cur += nums[j]
-		if v, ok := sums[cur%k]; ok {
-			if j-v > 1 {
+	for i, n := range nums {
+		cur += n
+		// (cur - x) % k == 0; cur%k -x%k == 0; x%k == cur%k
+		if end, ok := ends[cur%k]; ok {
+			if i+1-end >= 2 {
 				return true
 			}
 		} else {
-			sums[cur%k] = j
+			// store the smallest index, satisfy the length greedy
+			ends[cur%k] = i + 1
 		}
 	}
 	return false
