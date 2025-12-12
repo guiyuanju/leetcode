@@ -1,36 +1,49 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+	"slices"
+)
 
 func main() {
-	fmt.Println(robotWithString("zza"))
-	fmt.Println(robotWithString("bac"))
-	fmt.Println(robotWithString("bdda"))
+	assertEq("azz", robotWithString("zza"))
+	assertEq("abc", robotWithString("bac"))
+	assertEq("addb", robotWithString("bdda"))
+	assertEq("bdevfziy", robotWithString("bydizfve"))
 }
 
 func robotWithString(s string) string {
 	mins := make([]byte, len(s))
-	mins[len(mins)-1] = s[len(mins)-1]
+	mins[len(mins)-1] = s[len(s)-1]
 	for i := len(s) - 2; i >= 0; i-- {
 		mins[i] = min(mins[i+1], s[i])
 	}
 
-	i := 1
-	stack := []byte{s[0]}
-	var res []byte
+	var t, res []byte
+	var i int
 	for i < len(s) {
-		if len(stack) > 0 && stack[len(stack)-1] <= mins[i] {
-			res = append(res, stack[len(stack)-1])
-			stack = stack[:len(stack)-1]
+		if len(t) > 0 && t[len(t)-1] <= mins[i] {
+			res = append(res, t[len(t)-1])
+			t = t[:len(t)-1]
 		} else {
-			stack = append(stack, s[i])
+			t = append(t, s[i])
 			i++
 		}
 	}
 
-	for i := len(stack) - 1; i >= 0; i-- {
-		res = append(res, stack[i])
+	if len(t) > 0 {
+		slices.Reverse(t)
+		res = append(res, t...)
 	}
 
 	return string(res)
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
