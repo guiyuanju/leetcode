@@ -12,7 +12,7 @@ func main() {
 
 func findMinHeightTrees(n int, edges [][]int) []int {
 	if n == 1 {
-		return []int{n}
+		return []int{0}
 	}
 
 	graph := make(map[int][]int, n)
