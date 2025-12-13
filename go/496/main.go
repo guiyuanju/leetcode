@@ -9,22 +9,23 @@ func main() {
 
 func nextGreaterElement(nums1 []int, nums2 []int) []int {
 	m := map[int]int{}
-	mono := []int{}
+	s := []int{}
 	for _, n := range nums2 {
-		for len(mono) > 0 && n > mono[len(mono)-1] {
-			m[mono[len(mono)-1]] = n
-			mono = mono[:len(mono)-1]
+		for len(s) > 0 && s[len(s)-1] < n {
+			popped := s[len(s)-1]
+			s = s[:len(s)-1]
+			m[popped] = n
 		}
-		mono = append(mono, n)
+		s = append(s, n)
 	}
 
-	res := make([]int, 0, len(nums1))
+	var res []int
 	for _, n := range nums1 {
+		ng := -1
 		if v, ok := m[n]; ok {
-			res = append(res, v)
-		} else {
-			res = append(res, -1)
+			ng = v
 		}
+		res = append(res, ng)
 	}
 	return res
 }
