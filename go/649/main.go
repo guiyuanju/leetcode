@@ -7,34 +7,33 @@ func main() {
 	fmt.Println(predictPartyVictory("RDD"))
 }
 
-const R byte = 'R'
-const D byte = 'D'
+const (
+	R byte = 'R'
+	D byte = 'D'
+)
 
 func predictPartyVictory(senate string) string {
-	rs := []int{}
-	ds := []int{}
-	for i, c := range senate {
-		if byte(c) == R {
-			rs = append(rs, i)
+	var rq, dq []int
+	for i, s := range []byte(senate) {
+		if s == R {
+			rq = append(rq, i)
 		} else {
-			ds = append(ds, i)
+			dq = append(dq, i)
 		}
 	}
 
-	idx := len(senate)
-	for len(rs) > 0 && len(ds) > 0 {
-		if rs[0] < ds[0] {
-			rs = append(rs, idx)
+	for nextIdx := len(senate); len(rq) > 0 && len(dq) > 0; nextIdx++ {
+		if rq[0] < dq[0] {
+			rq = append(rq, nextIdx)
 		} else {
-			ds = append(ds, idx)
+			dq = append(dq, nextIdx)
 		}
-		rs = rs[1:]
-		ds = ds[1:]
-		idx++
+		rq = rq[1:]
+		dq = dq[1:]
 	}
 
-	if len(rs) == 0 {
-		return "Dire"
+	if len(rq) > 0 {
+		return "Radiant"
 	}
-	return "Radiant"
+	return "Dire"
 }
