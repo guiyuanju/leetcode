@@ -1,12 +1,23 @@
 package main
 
-import "fmt"
-import "math"
+import (
+	"fmt"
+	"math"
+	"reflect"
+)
 
 func main() {
-	fmt.Println(maxAncestorDiff(makeBinaryTree([]any{8, 3, 10, 1, 6, nil, 14, nil, nil, 4, 7, 13})))
-	fmt.Println(maxAncestorDiff(makeBinaryTree([]any{1, nil, 2, nil, 0, 3})))
-	fmt.Println(maxAncestorDiff(makeBinaryTree([]any{2, 4, 3, 1, nil, 0, 5, nil, 6, nil, nil, nil, 7})))
+	assertEq(7, maxAncestorDiff(makeBinaryTree([]any{8, 3, 10, 1, 6, nil, 14, nil, nil, 4, 7, 13})))
+	assertEq(3, maxAncestorDiff(makeBinaryTree([]any{1, nil, 2, nil, 0, 3})))
+	assertEq(5, maxAncestorDiff(makeBinaryTree([]any{2, 4, 3, 1, nil, 0, 5, nil, 6, nil, nil, nil, 7})))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 /*
@@ -33,20 +44,19 @@ func abs(x int) int {
 
 func maxAncestorDiff(root *TreeNode) int {
 	var res int
-	var dfs func(root *TreeNode, mini, maxi int)
-	dfs = func(root *TreeNode, mini, maxi int) {
+	var dfs func(root *TreeNode, lo, hi int)
+	dfs = func(root *TreeNode, lo, hi int) {
 		if root == nil {
+			res = max(res, hi-lo)
 			return
 		}
 
-		a := min(mini, root.Val)
-		b := max(maxi, root.Val)
-		res = max(res, b-a)
-		dfs(root.Left, a, b)
-		dfs(root.Right, a, b)
+		dfs(root.Left, min(lo, root.Val), max(hi, root.Val))
+		dfs(root.Right, min(lo, root.Val), max(hi, root.Val))
 	}
 
 	dfs(root, math.MaxInt, math.MinInt)
+
 	return res
 }
 
