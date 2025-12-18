@@ -23,18 +23,19 @@ func main() {
 }
 
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
-	lo := min(p.Val, q.Val)
-	hi := max(p.Val, q.Val)
-	for {
-		if lo <= root.Val && hi >= root.Val {
-			return root
-		}
-		if lo < root.Val {
-			root = root.Left
+	cur := root
+
+	for cur != nil {
+		if p.Val < cur.Val && q.Val < cur.Val {
+			cur = cur.Left
+		} else if p.Val > cur.Val && q.Val > cur.Val {
+			cur = cur.Right
 		} else {
-			root = root.Right
+			return cur
 		}
 	}
+
+	return nil
 }
 
 func pp(nodes []*TreeNode) {
