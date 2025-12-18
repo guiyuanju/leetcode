@@ -8,39 +8,48 @@ func main() {
 }
 
 func distanceK(root *TreeNode, target *TreeNode, k int) []int {
-	g := map[int][]int{}
-	var toGraph func(root *TreeNode, paren *TreeNode)
-	toGraph = func(root *TreeNode, paren *TreeNode) {
+	ups := map[*TreeNode]*TreeNode{}
+	var dfs func(root *TreeNode)
+	dfs = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
-		if paren != nil {
-			g[root.Val] = append(g[root.Val], paren.Val)
-			g[paren.Val] = append(g[paren.Val], root.Val)
-		}
-		toGraph(root.Left, root)
-		toGraph(root.Right, root)
+		ups[root.Left] = root
+		ups[root.Right] = root
+		dfs(root.Left)
+		dfs(root.Right)
 	}
-	toGraph(root, nil)
+	dfs(root)
 
-	seen := map[int]bool{}
-	queue := []int{target.Val}
-	seen[target.Val] = true
-	for k > 0 && len(queue) > 0 {
-		k--
-		for range len(queue) {
-			cur := queue[0]
-			queue = queue[1:]
-			for _, nei := range g[cur] {
-				if !seen[nei] {
-					seen[nei] = true
-					queue = append(queue, nei)
-				}
+	seen := map[*TreeNode]bool{}
+	seen[target] = true
+	var res []int
+	var step int
+	q := []*TreeNode{target}
+	for len(q) > 0 {
+		for range len(q) {
+			cur := q[0]
+			q = q[1:]
+			if step == k {
+				res = append(res, cur.Val)
+			}
+			if cur.Left != nil && !seen[cur.Left] {
+				seen[cur.Left] = true
+				q = append(q, cur.Left)
+			}
+			if cur.Right != nil && !seen[cur.Right] {
+				seen[cur.Right] = true
+				q = append(q, cur.Right)
+			}
+			if ups[cur] != nil && !seen[ups[cur]] {
+				seen[ups[cur]] = true
+				q = append(q, ups[cur])
 			}
 		}
+		step++
 	}
 
-	return queue
+	return res
 }
 
 type TreeNode struct {
