@@ -19,27 +19,26 @@ func main() {
 }
 
 func pathSum(root *TreeNode, targetSum int) int {
-	prefix := map[int]int{}
-	prefix[0] = 1
-	var dfs func(root *TreeNode, curSum int) int
-	dfs = func(root *TreeNode, curSum int) int {
+	count := map[int]int{}
+	count[0] = 1
+	var res int
+	var dfs func(root *TreeNode, sum int)
+	dfs = func(root *TreeNode, sum int) {
 		if root == nil {
-			return 0
+			return
 		}
 
-		curSum += root.Val
-
-		var res int
-		if prefix[curSum-targetSum] > 0 {
-			res += 1
-		} // curSum - pre = targetSum
-		prefix[curSum]++
-		res += dfs(root.Left, curSum) + dfs(root.Right, curSum)
-		prefix[curSum]--
-
-		return res
+		newSum := sum + root.Val
+		res += count[newSum-targetSum]
+		count[newSum]++
+		dfs(root.Left, newSum)
+		dfs(root.Right, newSum)
+		count[newSum]--
 	}
-	return dfs(root, 0)
+
+	dfs(root, 0)
+
+	return res
 }
 
 type TreeNode struct {
