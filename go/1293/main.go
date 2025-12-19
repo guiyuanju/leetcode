@@ -22,37 +22,44 @@ func assertEq(a, b any) {
 }
 
 func shortestPath(grid [][]int, k int) int {
+	type node struct {
+		r, c, k, s int
+	}
 	m := len(grid)
 	n := len(grid[0])
-	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+
+	dirs := [][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	valid := func(r, c int) bool {
 		return 0 <= r && r < m && 0 <= c && c < n
 	}
-
-	type node struct {
-		r, c, left, step int
+	status := func(n node) [3]int {
+		return [3]int{n.r, n.c, n.k}
 	}
 
+	q := []node{{0, 0, k, 0}}
 	seen := map[[3]int]bool{}
 	seen[[3]int{0, 0, k}] = true
-	queue := []node{{0, 0, k, 0}}
-
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
+	for len(q) > 0 {
+		cur := q[0]
+		q = q[1:]
 		if cur.r == m-1 && cur.c == n-1 {
-			return cur.step
+			return cur.s
 		}
-		for _, nei := range directions {
-			nextRow, nextCol := cur.r+nei[0], cur.c+nei[1]
-			if valid(nextRow, nextCol) {
-				if grid[nextRow][nextCol] == 1 && cur.left > 0 && !seen[[3]int{nextRow, nextCol, cur.left - 1}] {
-					seen[[3]int{nextRow, nextCol, cur.left - 1}] = true
-					queue = append(queue, node{nextRow, nextCol, cur.left - 1, cur.step + 1})
-				} else if grid[nextRow][nextCol] == 0 && !seen[[3]int{nextRow, nextCol, cur.left}] {
-					seen[[3]int{nextRow, nextCol, cur.left}] = true
-					queue = append(queue, node{nextRow, nextCol, cur.left, cur.step + 1})
+		for _, dir := range dirs {
+			nr, nc := cur.r+dir[0], cur.c+dir[1]
+			if !valid(nr, nc) {
+				continue
+			}
+			nn := node{nr, nc, cur.k, cur.s + 1}
+			if grid[nr][nc] == 1 {
+				if nn.k == 0 {
+					continue
 				}
+				nn.k--
+			}
+			if !seen[status(nn)] {
+				seen[status(nn)] = true
+				q = append(q, nn)
 			}
 		}
 	}
