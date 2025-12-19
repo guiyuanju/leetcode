@@ -12,40 +12,41 @@ func main() {
 }
 
 func updateMatrix(mat [][]int) [][]int {
-	type node struct {
-		r, c, s int
-	}
 	m := len(mat)
 	n := len(mat[0])
-	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-	valid := func(r, c int) bool {
-		return 0 <= r && r < m && 0 <= c && c < n
-	}
-
 	seen := make([][]bool, m)
 	for i := range m {
 		seen[i] = make([]bool, n)
 	}
 
-	queue := []node{}
+	dirs := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+	valid := func(r, c int) bool {
+		return 0 <= r && r < m && 0 <= c && c < n
+	}
+
+	q := [][2]int{}
 	for i := range m {
 		for j := range n {
 			if mat[i][j] == 0 {
-				queue = append(queue, node{i, j, 0})
+				q = append(q, [2]int{i, j})
 				seen[i][j] = true
 			}
 		}
 	}
 
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
-		for _, nei := range directions {
-			nextRow, nextCol := cur.r+nei[0], cur.c+nei[1]
-			if valid(nextRow, nextCol) && !seen[nextRow][nextCol] {
-				seen[nextRow][nextCol] = true
-				queue = append(queue, node{nextRow, nextCol, cur.s + 1})
-				mat[nextRow][nextCol] = cur.s + 1
+	var step int
+	for len(q) > 0 {
+		step++
+		for range len(q) {
+			cur := q[0]
+			q = q[1:]
+			for _, dir := range dirs {
+				nr, nc := cur[0]+dir[0], cur[1]+dir[1]
+				if valid(nr, nc) && !seen[nr][nc] {
+					seen[nr][nc] = true
+					mat[nr][nc] = step
+					q = append(q, [2]int{nr, nc})
+				}
 			}
 		}
 	}
