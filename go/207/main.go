@@ -1,40 +1,51 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func main() {
-	fmt.Println(canFinish(2, [][]int{{1, 0}}))
-	fmt.Println(canFinish(2, [][]int{{1, 0}, {0, 1}}))
+	assertEq(true, canFinish(2, [][]int{{1, 0}}))
+	assertEq(false, canFinish(2, [][]int{{1, 0}, {0, 1}}))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func canFinish(numCourses int, prerequisites [][]int) bool {
-	graph := make(map[int][]int, numCourses)
-	indegrees := make([]int, numCourses)
+	ind := make([]int, numCourses)
+	g := map[int][]int{}
 	for _, p := range prerequisites {
-		graph[p[1]] = append(graph[p[1]], p[0])
-		indegrees[p[0]]++
+		ind[p[1]]++
+		g[p[0]] = append(g[p[0]], p[1])
 	}
 
-	queue := []int{}
-	for i, in := range indegrees {
-		if in == 0 {
-			queue = append(queue, i)
+	q := []int{}
+	for i, d := range ind {
+		if d == 0 {
+			q = append(q, i)
 		}
 	}
 
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
-		for _, nei := range graph[cur] {
-			indegrees[nei]--
-			if indegrees[nei] == 0 {
-				queue = append(queue, nei)
+	for len(q) > 0 {
+		cur := q[0]
+		q = q[1:]
+		for _, nei := range g[cur] {
+			ind[nei]--
+			if ind[nei] == 0 {
+				q = append(q, nei)
 			}
 		}
 	}
 
-	for _, in := range indegrees {
-		if in != 0 {
+	for _, d := range ind {
+		if d > 0 {
 			return false
 		}
 	}
