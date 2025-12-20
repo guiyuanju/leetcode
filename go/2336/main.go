@@ -3,53 +3,57 @@ package main
 import (
 	"container/heap"
 	"fmt"
+	"reflect"
 )
 
 func main() {
 	s := Constructor()
 	s.AddBack(2)
-	fmt.Println(s.PopSmallest())
-	fmt.Println(s.PopSmallest())
-	fmt.Println(s.PopSmallest())
+	assertEq(1, s.PopSmallest())
+	assertEq(2, s.PopSmallest())
+	assertEq(3, s.PopSmallest())
 	s.AddBack(1)
-	fmt.Println(s.PopSmallest())
-	fmt.Println(s.PopSmallest())
-	fmt.Println(s.PopSmallest())
+	assertEq(1, s.PopSmallest())
+	assertEq(4, s.PopSmallest())
+	assertEq(5, s.PopSmallest())
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 type SmallestInfiniteSet struct {
-	h     Heap
-	top   int
-	exist map[int]bool
+	left      Heap
+	leftExist map[int]bool
+	rightHead int
 }
 
 func Constructor() SmallestInfiniteSet {
-	return SmallestInfiniteSet{nil, 1, map[int]bool{}}
+	return SmallestInfiniteSet{Heap{}, map[int]bool{}, 1}
 }
 
 func (this *SmallestInfiniteSet) PopSmallest() int {
-	if this.h.Len() > 0 {
-		res := heap.Pop(&this.h).(int)
-		this.exist[res] = false
+	if len(this.left) > 0 {
+		res := heap.Pop(&this.left).(int)
+		this.leftExist[res] = false
 		return res
 	}
-	this.top++
-	return this.top - 1
+	this.leftExist[this.rightHead] = false
+	this.rightHead++
+	return this.rightHead - 1
 }
 
 func (this *SmallestInfiniteSet) AddBack(num int) {
-	if num < this.top && !this.exist[num] {
-		heap.Push(&this.h, num)
-		this.exist[num] = true
+	if num >= this.rightHead || this.leftExist[num] {
+		return
 	}
+	heap.Push(&this.left, num)
+	this.leftExist[num] = true
 }
-
-/**
- * Your SmallestInfiniteSet object will be instantiated and called as such:
- * obj := Constructor();
- * param_1 := obj.PopSmallest();
- * obj.AddBack(num);
- */
 
 type Heap []int
 
