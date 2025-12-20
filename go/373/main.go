@@ -3,48 +3,49 @@ package main
 import (
 	"container/heap"
 	"fmt"
+	"reflect"
 )
 
 func main() {
 	nums1 := []int{1, 7, 11}
 	nums2 := []int{2, 4, 6}
 	k := 3
-	fmt.Println(kSmallestPairs(nums1, nums2, k))
+	assertEq([][]int{{1, 2}, {1, 4}, {1, 6}}, kSmallestPairs(nums1, nums2, k))
 
 	nums1 = []int{1, 1, 2}
 	nums2 = []int{1, 2, 3}
 	k = 2
-	fmt.Println(kSmallestPairs(nums1, nums2, k))
+	assertEq([][]int{{1, 1}, {1, 1}}, kSmallestPairs(nums1, nums2, k))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func kSmallestPairs(nums1 []int, nums2 []int, k int) [][]int {
+	var h Heap
 	var res [][]int
 	seen := map[[2]int]bool{}
-	h := Heap([][3]int{{0, 0, nums1[0] + nums2[0]}})
 	seen[[2]int{0, 0}] = true
 
-	for len(res) < k && h.Len() > 0 {
+	heap.Push(&h, [3]int{0, 0, nums1[0] + nums2[0]})
+
+	for range k {
 		cur := heap.Pop(&h).([3]int)
-		i := cur[0]
-		j := cur[1]
-		res = append(res, []int{nums1[i], nums2[j]})
-
-		if i < len(nums1)-1 && !seen[[2]int{i + 1, j}] {
-			seen[[2]int{i + 1, j}] = true
-			heap.Push(&h, [3]int{i + 1, j, nums1[i+1] + nums2[j]})
+		res = append(res, []int{nums1[cur[0]], nums2[cur[1]]})
+		if cur[0] < len(nums1)-1 && !seen[[2]int{cur[0] + 1, cur[1]}] {
+			seen[[2]int{cur[0] + 1, cur[1]}] = true
+			heap.Push(&h, [3]int{cur[0] + 1, cur[1], nums1[cur[0]+1] + nums2[cur[1]]})
 		}
-
-		if j < len(nums2)-1 && !seen[[2]int{i, j + 1}] {
-			seen[[2]int{i, j + 1}] = true
-			heap.Push(&h, [3]int{i, j + 1, nums1[i] + nums2[j+1]})
-		}
-
-		if i < len(nums1)-1 && j < len(nums2)-1 && !seen[[2]int{i + 1, j + 1}] {
-			seen[[2]int{i + 1, j + 1}] = true
-			heap.Push(&h, [3]int{i + 1, j + 1, nums1[i+1] + nums2[j+1]})
+		if cur[1] < len(nums2)-1 && !seen[[2]int{cur[0], cur[1] + 1}] {
+			seen[[2]int{cur[0], cur[1] + 1}] = true
+			heap.Push(&h, [3]int{cur[0], cur[1] + 1, nums1[cur[0]] + nums2[cur[1]+1]})
 		}
 	}
-
 	return res
 }
 
