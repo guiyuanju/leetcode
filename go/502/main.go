@@ -31,41 +31,37 @@ func assertEq[T comparable](a, b T) {
 }
 
 func findMaximizedCapital(k int, w int, profits []int, capital []int) int {
-	var maxPros Heap
-	maxPros = Heap{nil, func(i, j int) bool { return profits[maxPros.vals[i]] > profits[maxPros.vals[j]] }}
-
-	indices := make([]int, len(profits))
-	for i := range indices {
-		indices[i] = i
+	sortedCapital := make([]int, len(capital))
+	for i := range len(sortedCapital) {
+		sortedCapital[i] = i
 	}
-	slices.SortFunc(indices, func(i, j int) int { return capital[i] - capital[j] })
+	slices.SortFunc(sortedCapital, func(i, j int) int { return capital[i] - capital[j] })
 
-	res := w
 	var i int
+	h := Heap{}
+	curCap := w
 	for range k {
-		for i < len(indices) && capital[indices[i]] <= res {
-			heap.Push(&maxPros, indices[i])
+		for i < len(sortedCapital) && capital[sortedCapital[i]] <= curCap {
+			heap.Push(&h, profits[sortedCapital[i]])
 			i++
 		}
-		if maxPros.Len() == 0 {
-			return res
+		if len(h) > 0 {
+			curCap += heap.Pop(&h).(int)
 		}
-		res += profits[heap.Pop(&maxPros).(int)]
 	}
-	return res
+
+	return curCap
 }
 
-type Heap struct {
-	vals []int
-	less func(i, j int) bool
-}
+type Heap []int
 
-func (h Heap) Len() int           { return len(h.vals) }
-func (h Heap) Less(i, j int) bool { return h.less(i, j) }
-func (h Heap) Swap(i, j int)      { h.vals[i], h.vals[j] = h.vals[j], h.vals[i] }
-func (h *Heap) Push(x any)        { (*h).vals = append((*h).vals, x.(int)) }
+func (h Heap) Len() int           { return len(h) }
+func (h Heap) Less(i, j int) bool { return h[i] > h[j] }
+func (h *Heap) Swap(i, j int)     { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
+func (h *Heap) Push(x any)        { *h = append(*h, x.(int)) }
 func (h *Heap) Pop() any {
-	hd := (*h).vals[len((*h).vals)-1]
-	(*h).vals = (*h).vals[:len((*h).vals)-1]
-	return hd
+	l := len(*h) - 1
+	res := (*h)[l]
+	*h = (*h)[:l]
+	return res
 }
