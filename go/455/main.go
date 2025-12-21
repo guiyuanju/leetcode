@@ -31,13 +31,14 @@ func findContentChildren(g []int, s []int) int {
 	slices.Sort(g)
 	slices.Sort(s)
 
-	var i, j int
+	var res, i, j int
 	for i < len(g) && j < len(s) {
 		if g[i] <= s[j] {
+			res++
 			i++
 		}
 		j++
 	}
 
-	return i
+	return res
 }
