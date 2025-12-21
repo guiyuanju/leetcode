@@ -39,55 +39,57 @@ func assertEq[T comparable](a, b T) {
 }
 
 func mostBooked(n int, meetings [][]int) int {
+	slices.SortFunc(meetings, func(a, b []int) int { return a[0] - b[0] })
 	count := make([]int, n)
-	slices.SortFunc(meetings, func(a, b []int) int {
-		return a[0] - b[0]
-	})
-
-	unused := Heap([][]int{})
-	used := Heap([][]int{})
+	using := Heap{}
+	empty := Heap{}
 	for i := range n {
-		unused = append(unused, []int{i, i})
+		empty = append(empty, Ele{0, i})
 	}
-
 	for _, m := range meetings {
-		for used.Len() > 0 && used[0][0] <= m[0] {
-			cur := heap.Pop(&used).([]int)
-			heap.Push(&unused, []int{cur[1], cur[1]})
+		for len(using) > 0 && m[0] >= using[0].end {
+			room := heap.Pop(&using).(Ele)
+			room.end = 0
+			heap.Push(&empty, room)
 		}
-		if unused.Len() > 0 {
-			cur := heap.Pop(&unused).([]int)
-			count[cur[0]]++
-			cur[0] = m[1]
-			heap.Push(&used, cur)
+		var room Ele
+		if (len(empty)) == 0 {
+			room = heap.Pop(&using).(Ele)
+			room.end += m[1] - m[0]
 		} else {
-			used[0][0] += m[1] - m[0]
-			count[used[0][1]]++
-			heap.Fix(&used, 0)
+			room = heap.Pop(&empty).(Ele)
+			room.end = m[1]
 		}
+		heap.Push(&using, room)
+		count[room.num]++
 	}
 
-	var res, hi int
-	for i, c := range count {
-		if c > hi {
-			hi = c
-			res = i
+	var hi, idx int
+	for i, n := range count {
+		if n > hi {
+			hi = n
+			idx = i
 		}
 	}
-	return res
+	return idx
 }
 
-type Heap [][]int
+type Ele struct {
+	end int
+	num int
+}
+
+type Heap []Ele
 
 func (h Heap) Len() int { return len(h) }
 func (h Heap) Less(i, j int) bool {
-	if h[i][0] == h[j][0] {
-		return h[i][1] < h[j][1]
+	if h[i].end == h[j].end {
+		return h[i].num < h[j].num
 	}
-	return h[i][0] < h[j][0]
+	return h[i].end < h[j].end
 }
 func (h Heap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
-func (h *Heap) Push(x any)   { *h = append(*h, x.([]int)) }
+func (h *Heap) Push(x any)   { *h = append(*h, x.(Ele)) }
 func (h *Heap) Pop() any {
 	hd := (*h)[len(*h)-1]
 	*h = (*h)[:len(*h)-1]
