@@ -1,20 +1,31 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func main() {
 	root := makeBinaryTree([]any{6, 2, 13, 1, 4, 9, 15, nil, nil, nil, nil, nil, nil, 14})
 	queries := []int{2, 5, 16}
-	fmt.Println(closestNodes(root, queries))
+	assertEq([][]int{{2, 2}, {4, 6}, {15, -1}}, closestNodes(root, queries))
 
 	root = makeBinaryTree([]any{4, nil, 9})
 	queries = []int{3}
-	fmt.Println(closestNodes(root, queries))
+	assertEq([][]int{{-1, 4}}, closestNodes(root, queries))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func closestNodes(root *TreeNode, queries []int) [][]int {
 	var nums []int
-	var dfs func(*TreeNode)
+	var dfs func(root *TreeNode)
 	dfs = func(root *TreeNode) {
 		if root == nil {
 			return
@@ -26,35 +37,37 @@ func closestNodes(root *TreeNode, queries []int) [][]int {
 	dfs(root)
 
 	var res [][]int
-	bs := func(x int) {
-		left := 0
-		right := len(nums) - 1
-		for left <= right {
-			mid := left + (right-left)/2
-			if nums[mid] == x {
-				res = append(res, []int{x, x})
-				return
-			} else if nums[mid] > x {
-				right = mid - 1
-			} else {
-				left = mid + 1
-			}
-		}
-		l, r := -1, -1
-		if right >= 0 {
-			l = nums[right]
-		}
-		if left < len(nums) {
-			r = nums[left]
-		}
-		res = append(res, []int{l, r})
-	}
-
 	for _, q := range queries {
-		bs(q)
+		idx := bs(nums, q)
+		lo, hi := -1, -1
+		if idx > 0 {
+			lo = nums[idx-1]
+		}
+		if idx < len(nums) {
+			hi = nums[idx]
+		}
+		if idx < len(nums) && nums[idx] == q {
+			lo = q
+			hi = q
+		}
+		res = append(res, []int{lo, hi})
 	}
 
 	return res
+}
+
+func bs(xs []int, target int) int {
+	i := 0
+	j := len(xs)
+	for i < j {
+		mid := i + (j-i)/2
+		if xs[mid] < target {
+			i = mid + 1
+		} else {
+			j = mid
+		}
+	}
+	return i
 }
 
 type TreeNode struct {
