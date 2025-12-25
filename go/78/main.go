@@ -14,18 +14,18 @@ func main() {
 
 func subsets(nums []int) [][]int {
 	var res [][]int
-	var bt func(i int, cur []int)
-	bt = func(i int, cur []int) {
+	var dp func(i int, cur []int)
+	dp = func(i int, cur []int) {
 		tmp := make([]int, len(cur))
 		copy(tmp, cur)
 		res = append(res, tmp)
 
 		for j := i; j < len(nums); j++ {
-			bt(j+1, append(cur, nums[j]))
+			dp(j+1, append(cur, nums[j]))
 		}
 	}
 
-	bt(0, nil)
+	dp(0, nil)
 
 	return res
 }
