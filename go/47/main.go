@@ -2,14 +2,23 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
 func main() {
 	nums := []int{1, 1, 2}
-	fmt.Println(permuteUnique(nums))
+	assertEq([][]int{{1, 1, 2}, {1, 2, 1}, {2, 1, 1}}, permuteUnique(nums))
 
 	nums = []int{1, 2, 3}
-	fmt.Println(permuteUnique(nums))
+	assertEq([][]int{{1, 2, 3}, {1, 3, 2}, {2, 1, 3}, {2, 3, 1}, {3, 1, 2}, {3, 2, 1}}, permuteUnique(nums))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func permuteUnique(nums []int) [][]int {
@@ -22,7 +31,9 @@ func permuteUnique(nums []int) [][]int {
 	var bt func(cur []int)
 	bt = func(cur []int) {
 		if len(cur) == len(nums) {
-			res = append(res, append([]int{}, cur...))
+			tmp := make([]int, len(nums))
+			copy(tmp, cur)
+			res = append(res, tmp)
 			return
 		}
 
