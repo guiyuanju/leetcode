@@ -2,37 +2,51 @@ package main
 
 import (
 	"fmt"
-	"slices"
+	"reflect"
 )
 
 func main() {
 	nums := []int{1, 2, 3}
-	fmt.Println(permute(nums))
+	assertEq([][]int{{1, 2, 3}, {1, 3, 2}, {2, 1, 3}, {2, 3, 1}, {3, 1, 2}, {3, 2, 1}}, permute(nums))
 
 	nums = []int{0, 1}
-	fmt.Println(permute(nums))
+	assertEq([][]int{{0, 1}, {1, 0}}, permute(nums))
 
 	nums = []int{1}
-	fmt.Println(permute(nums))
+	assertEq([][]int{{1}}, permute(nums))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func permute(nums []int) [][]int {
 	var res [][]int
-
-	var bt func([]int)
-	bt = func(cur []int) {
-		if len(cur) == len(nums) {
-			res = append(res, append([]int(nil), cur...))
+	m := make(map[int]bool, len(nums))
+	cur := make([]int, len(nums))
+	var bt func(i int)
+	bt = func(i int) {
+		if i == len(nums) {
+			tmp := make([]int, len(nums))
+			copy(tmp, cur)
+			res = append(res, tmp)
 			return
 		}
 		for _, n := range nums {
-			if !slices.Contains(cur, n) {
-				bt(append(cur, n))
+			if !m[n] {
+				m[n] = true
+				cur[i] = n
+				bt(i + 1)
+				m[n] = false
 			}
 		}
 	}
 
-	bt(nil)
+	bt(0)
 
 	return res
 }
