@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"slices"
 )
 
 func main() {
@@ -11,6 +12,9 @@ func main() {
 
 	batteries = []int{1, 1, 1, 1}
 	assertEq(int64(2), maxRunTime(2, batteries))
+
+	batteries = []int{10, 10, 3, 5}
+	assertEq(int64(8), maxRunTime(3, batteries))
 }
 
 func assertEq(a, b any) {
@@ -22,27 +26,22 @@ func assertEq(a, b any) {
 }
 
 func maxRunTime(n int, batteries []int) int64 {
-	check := func(g int) bool {
-		var res int
-		for _, n := range batteries {
-			res += min(n, g)
-		}
-		return res >= n*g
+	slices.SortFunc(batteries, func(a, b int) int { return b - a })
+	live := batteries[:n]
+	slices.Reverse(live)
+
+	var extra int
+	for i := n; i < len(batteries); i++ {
+		extra += batteries[i]
 	}
 
-	var lo, hi int
-	for _, n := range batteries {
-		hi += n
-	}
-	hi = hi/n + 1
-
-	for lo < hi {
-		mid := lo + (hi-lo)/2
-		if check(mid) {
-			lo = mid + 1
-		} else {
-			hi = mid
+	for i := range n - 1 {
+		diff := live[i+1] - live[i]
+		if extra < diff*(i+1) {
+			return int64(live[i] + extra/(i+1))
 		}
+		extra -= diff * (i + 1)
 	}
-	return int64(lo - 1)
+
+	return int64(live[len(live)-1] + extra/n)
 }
