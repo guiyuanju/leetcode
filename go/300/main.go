@@ -21,19 +21,16 @@ func main() {
 }
 
 func lengthOfLIS(nums []int) int {
-	return lengthOfLIS_Greedy(nums)
+	// return lengthOfLIS_TD(nums)
+	return lengthOfLIS_BU(nums)
 }
 
-func lengthOfLIS_DP_TD(nums []int) int {
-	memo := make([]int, len(nums))
-	for i := range memo {
-		memo[i] = -1
-	}
-
+func lengthOfLIS_TD(nums []int) int {
+	memo := map[int]int{}
 	var dp func(i int) int
 	dp = func(i int) int {
-		if memo[i] != -1 {
-			return memo[i]
+		if v, ok := memo[i]; ok {
+			return v
 		}
 
 		if i == 0 {
@@ -42,15 +39,13 @@ func lengthOfLIS_DP_TD(nums []int) int {
 
 		var res int
 		for j := range i {
-			if nums[j] < nums[i] {
+			if nums[i] > nums[j] {
 				res = max(res, dp(j))
 			}
 		}
-		res++
 
-		memo[i] = res
-
-		return res
+		memo[i] = res + 1
+		return res + 1
 	}
 
 	var res int
@@ -60,18 +55,18 @@ func lengthOfLIS_DP_TD(nums []int) int {
 	return res
 }
 
-func lengthOfLIS_DP_BU(nums []int) int {
+func lengthOfLIS_BU(nums []int) int {
 	dp := make([]int, len(nums))
 	dp[0] = 1
 	for i := 1; i < len(nums); i++ {
-		var res int
 		for j := range i {
-			if nums[j] < nums[i] {
-				res = max(res, dp[j])
+			if nums[i] > nums[j] {
+				dp[i] = max(dp[i], dp[j])
 			}
 		}
-		dp[i] = res + 1
+		dp[i]++
 	}
+
 	return slices.Max(dp)
 }
 
