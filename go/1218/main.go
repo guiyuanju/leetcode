@@ -14,15 +14,67 @@ func main() {
 }
 
 func longestSubsequence(arr []int, difference int) int {
-	m := make(map[int]int, len(arr))
+	return longestSubsequence_bu(arr, difference)
+	// return longestSubsequence_td(arr, difference)
+}
+
+func longestSubsequence_td(arr []int, difference int) int {
+	m := map[int][]int{}
+	for i, n := range arr {
+		m[n] = append(m[n], i)
+	}
+
+	var dp func(i int) int
+	dp = func(i int) int {
+		if i == 0 {
+			return 1
+		}
+
+		var res int
+		for _, j := range m[arr[i]-difference] {
+			if j < i {
+				res = max(res, dp(j))
+			}
+		}
+
+		return res + 1
+	}
+
 	var res int
+	for i := range arr {
+		res = max(res, dp(i))
+	}
+	return res
+}
+
+// func longestSubsequence(arr []int, difference int) int {
+// 	m := make(map[int]int, len(arr))
+// 	var res int
+// 	for _, n := range arr {
+// 		if v, ok := m[n-difference]; ok {
+// 			m[n] = v + 1
+// 		} else {
+// 			m[n] = 1
+// 		}
+// 		res = max(res, m[n])
+// 	}
+// 	return res
+// }
+
+func longestSubsequence_bu(arr []int, difference int) int {
+	m := map[int]int{}
 	for _, n := range arr {
-		if v, ok := m[n-difference]; ok {
-			m[n] = v + 1
+		if length, ok := m[n-difference]; ok {
+			m[n] = length + 1
 		} else {
 			m[n] = 1
 		}
-		res = max(res, m[n])
 	}
+
+	var res int
+	for _, length := range m {
+		res = max(res, length)
+	}
+
 	return res
 }
