@@ -1,44 +1,50 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func main() {
-	fmt.Println(findMaxForm([]string{"10", "0001", "111001", "1", "0"}, 5, 3))
-	fmt.Println(findMaxForm([]string{"10", "0", "1"}, 1, 1))
+	assertEq(4, findMaxForm([]string{"10", "0001", "111001", "1", "0"}, 5, 3))
+	assertEq(2, findMaxForm([]string{"10", "0", "1"}, 1, 1))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func findMaxForm(strs []string, m int, n int) int {
-	// return findMaxFormTD(strs, m, n)
-	return findMaxFormBU(strs, m, n)
+	// return findMaxForm_td(strs, m, n)
+	return findMaxForm_bu(strs, m, n)
 }
 
-func findMaxFormTD(strs []string, m int, n int) int {
+func findMaxForm_td(strs []string, m int, n int) int {
 	count := make([][2]int, len(strs))
 	for i, s := range strs {
 		for _, c := range s {
-			count[i][int(c-'0')]++
+			if c == '0' {
+				count[i][0]++
+			} else {
+				count[i][1]++
+			}
 		}
 	}
 
-	memo := map[[3]int]int{}
-
 	var dp func(i, m, n int) int
 	dp = func(i, m, n int) int {
-		if v, ok := memo[[3]int{i, m, n}]; ok {
-			return v
-		}
-
 		if i >= len(strs) || (m == 0 && n == 0) {
 			return 0
 		}
 
-		var res int
+		res := dp(i+1, m, n)
 		if count[i][0] <= m && count[i][1] <= n {
-			res = 1 + dp(i+1, m-count[i][0], n-count[i][1])
+			res = max(res, 1+dp(i+1, m-count[i][0], n-count[i][1]))
 		}
-		res = max(res, dp(i+1, m, n))
-
-		memo[[3]int{i, m, n}] = res
 
 		return res
 	}
@@ -46,7 +52,18 @@ func findMaxFormTD(strs []string, m int, n int) int {
 	return dp(0, m, n)
 }
 
-func findMaxFormBU(strs []string, m int, n int) int {
+func findMaxForm_bu(strs []string, m int, n int) int {
+	count := make([][2]int, len(strs))
+	for i, s := range strs {
+		for _, c := range s {
+			if c == '0' {
+				count[i][0]++
+			} else {
+				count[i][1]++
+			}
+		}
+	}
+
 	dp := make([][][]int, len(strs)+1)
 	for i := range dp {
 		dp[i] = make([][]int, m+1)
@@ -55,20 +72,13 @@ func findMaxFormBU(strs []string, m int, n int) int {
 		}
 	}
 
-	count := make([][2]int, len(strs))
-	for i, s := range strs {
-		for _, c := range s {
-			count[i][int(c-'0')]++
-		}
-	}
-
 	for i := len(strs) - 1; i >= 0; i-- {
-		for j := 0; j <= m; j++ {
-			for k := 0; k <= n; k++ {
+		for j := range m + 1 {
+			for k := range n + 1 {
+				dp[i][j][k] = dp[i+1][j][k]
 				if count[i][0] <= j && count[i][1] <= k {
-					dp[i][j][k] = 1 + dp[i+1][j-count[i][0]][k-count[i][1]]
+					dp[i][j][k] = max(dp[i][j][k], 1+dp[i+1][j-count[i][0]][k-count[i][1]])
 				}
-				dp[i][j][k] = max(dp[i][j][k], dp[i+1][j][k])
 			}
 		}
 	}
