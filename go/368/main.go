@@ -109,39 +109,3 @@ func largestDivisibleSubset_bu_space_opt(nums []int) []int {
 
 	return res
 }
-
-func largestDivisibleSubsetBU(nums []int) []int {
-	slices.Sort(nums)
-	dp := make([]int, len(nums))
-	dp[0] = 1
-	prev := make([]int, len(nums))
-	for i := range prev {
-		prev[i] = -1
-	}
-
-	for i := 1; i < len(nums); i++ {
-		for j := range i {
-			if nums[i]%nums[j] == 0 && dp[j] > dp[i] {
-				dp[i] = dp[j]
-				prev[i] = j
-			}
-		}
-		dp[i]++
-	}
-
-	var length, idx int
-	for i := range dp {
-		if dp[i] > length {
-			length = dp[i]
-			idx = i
-		}
-	}
-
-	var res []int
-	for idx != -1 {
-		res = append(res, nums[idx])
-		idx = prev[idx]
-	}
-	slices.Reverse(res)
-	return res
-}
