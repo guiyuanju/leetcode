@@ -2,12 +2,21 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
 func main() {
-	fmt.Println(findMinHeightTrees(4, [][]int{{1, 0}, {1, 2}, {1, 3}}))
-	fmt.Println(findMinHeightTrees(6, [][]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {5, 4}}))
-	fmt.Println(findMinHeightTrees(1, [][]int{}))
+	assertEq([]int{1}, findMinHeightTrees(4, [][]int{{1, 0}, {1, 2}, {1, 3}}))
+	assertEq([]int{3, 4}, findMinHeightTrees(6, [][]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {5, 4}}))
+	assertEq([]int{0}, findMinHeightTrees(1, [][]int{}))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func findMinHeightTrees(n int, edges [][]int) []int {
@@ -15,36 +24,36 @@ func findMinHeightTrees(n int, edges [][]int) []int {
 		return []int{0}
 	}
 
-	graph := make(map[int][]int, n)
-	degrees := make([]int, n)
+	g := map[int][]int{}
+	deg := make([]int, n)
 	for _, e := range edges {
-		graph[e[0]] = append(graph[e[0]], e[1])
-		graph[e[1]] = append(graph[e[1]], e[0])
-		degrees[e[0]]++
-		degrees[e[1]]++
+		deg[e[0]]++
+		deg[e[1]]++
+		g[e[0]] = append(g[e[0]], e[1])
+		g[e[1]] = append(g[e[1]], e[0])
 	}
 
-	queue := []int{}
-	for i, d := range degrees {
+	q := []int{}
+	for n, d := range deg {
 		if d == 1 {
-			queue = append(queue, i)
+			q = append(q, n)
 		}
 	}
 
-	remain := n - len(queue)
-	for remain > 0 {
-		for range len(queue) {
-			cur := queue[0]
-			queue = queue[1:]
-			for _, nei := range graph[cur] {
-				degrees[nei]--
-				if degrees[nei] == 1 {
-					queue = append(queue, nei)
-					remain--
+	left := n - len(q)
+	for left > 0 {
+		for range len(q) {
+			cur := q[0]
+			q = q[1:]
+			for _, nei := range g[cur] {
+				deg[nei]--
+				if deg[nei] == 1 {
+					left--
+					q = append(q, nei)
 				}
 			}
 		}
 	}
 
-	return queue
+	return q
 }
