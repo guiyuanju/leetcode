@@ -1,63 +1,70 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func main() {
-	fmt.Println(longestIncreasingPath([][]int{{9, 9, 4}, {6, 6, 8}, {2, 1, 1}}))
-	fmt.Println(longestIncreasingPath([][]int{{3, 4, 5}, {3, 2, 6}, {2, 2, 1}}))
-	fmt.Println(longestIncreasingPath([][]int{{1}}))
+	assertEq(4, longestIncreasingPath([][]int{{9, 9, 4}, {6, 6, 8}, {2, 1, 1}}))
+	assertEq(4, longestIncreasingPath([][]int{{3, 4, 5}, {3, 2, 6}, {2, 2, 1}}))
+	assertEq(1, longestIncreasingPath([][]int{{1}}))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func longestIncreasingPath(matrix [][]int) int {
 	m := len(matrix)
 	n := len(matrix[0])
+
+	directions := [][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	valid := func(r, c int) bool {
 		return 0 <= r && r < m && 0 <= c && c < n
 	}
-	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 
-	// compute indgrees
-	indegrees := make([][]int, m)
-	for i := range indegrees {
-		indegrees[i] = make([]int, n)
-	}
-	for r := range m {
-		for c := range n {
+	g := map[[2]int][][2]int{}
+	indegree := map[[2]int]int{}
+	for i := range m {
+		for j := range n {
 			for _, dir := range directions {
-				nr, nc := r+dir[0], c+dir[1]
-				if valid(nr, nc) && matrix[r][c] < matrix[nr][nc] {
-					indegrees[nr][nc]++
+				nr, nc := i+dir[0], j+dir[1]
+				if valid(nr, nc) && matrix[nr][nc] > matrix[i][j] {
+					g[[2]int{i, j}] = append(g[[2]int{i, j}], [2]int{nr, nc})
+					indegree[[2]int{nr, nc}]++
 				}
 			}
 		}
 	}
 
-	// find the longest path
-	queue := [][2]int{}
-	for r := range m {
-		for c := range n {
-			if indegrees[r][c] == 0 {
-				queue = append(queue, [2]int{r, c})
+	q := [][2]int{}
+	for i := range m {
+		for j := range n {
+			if indegree[[2]int{i, j}] == 0 {
+				q = append(q, [2]int{i, j})
 			}
 		}
 	}
-	var res int
-	for len(queue) > 0 {
-		for range len(queue) {
-			cur := queue[0]
-			queue = queue[1:]
-			for _, dir := range directions {
-				nr, nc := cur[0]+dir[0], cur[1]+dir[1]
-				if valid(nr, nc) && matrix[cur[0]][cur[1]] < matrix[nr][nc] {
-					indegrees[nr][nc]--
-					if indegrees[nr][nc] == 0 {
-						queue = append(queue, [2]int{nr, nc})
-					}
+
+	var step int
+	for len(q) > 0 {
+		step++
+		for range len(q) {
+			cur := q[0]
+			q = q[1:]
+			for _, nei := range g[cur] {
+				indegree[nei]--
+				if indegree[nei] == 0 {
+					q = append(q, nei)
 				}
 			}
 		}
-		res++
 	}
 
-	return res
+	return step
 }
