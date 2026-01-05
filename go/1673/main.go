@@ -1,22 +1,33 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func main() {
-	fmt.Println(mostCompetitive([]int{3, 5, 2, 6}, 2))
-	fmt.Println(mostCompetitive([]int{2, 4, 3, 3, 5, 4, 9, 6}, 4))
-	fmt.Println(mostCompetitive([]int{3, 4, 5, 1, 0}, 3))
+	assertEq([]int{2, 6}, mostCompetitive([]int{3, 5, 2, 6}, 2))
+	assertEq([]int{2, 3, 3, 4}, mostCompetitive([]int{2, 4, 3, 3, 5, 4, 9, 6}, 4))
+	assertEq([]int{3, 1, 0}, mostCompetitive([]int{3, 4, 5, 1, 0}, 3))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
 }
 
 func mostCompetitive(nums []int, k int) []int {
-	mono := []int{}
+	var res []int
 	for i, n := range nums {
-		for len(mono) > 0 && n < mono[len(mono)-1] && len(mono)+len(nums)-i-1 >= k {
-			mono = mono[:len(mono)-1]
+		for len(res) > 0 && n < res[len(res)-1] && len(res)+len(nums)-i-1 >= k {
+			res = res[:len(res)-1]
 		}
-		mono = append(mono, n)
+		res = append(res, n)
 	}
-	return mono[:k]
+	return res[:k]
 }
 
 // [3 4 5 1 0] 3 1 0
