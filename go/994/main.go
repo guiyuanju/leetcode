@@ -35,48 +35,46 @@ func assertEq[T comparable](a, b T) {
 func orangesRotting(grid [][]int) int {
 	m := len(grid)
 	n := len(grid[0])
-	dirs := [][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+	directions := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	valid := func(r, c int) bool {
-		return 0 <= r && r < m && 0 <= c && c < n && grid[r][c] == 1
+		return 0 <= r && r < m && 0 <= c && c < n
 	}
 
-	var freshNum int
-	q := [][2]int{}
+	var fresh int
+	q := [][]int{}
 	for i := range m {
 		for j := range n {
-			switch grid[i][j] {
-			case 1:
-				freshNum++
-			case 2:
-				q = append(q, [2]int{i, j})
+			if grid[i][j] == 2 {
+				q = append(q, []int{i, j})
+			} else if grid[i][j] == 1 {
+				fresh++
 			}
 		}
 	}
 
-	if freshNum == 0 {
+	if fresh == 0 {
 		return 0
 	}
 
 	var step int
 	for len(q) > 0 {
+		step++
 		for range len(q) {
 			cur := q[0]
 			q = q[1:]
-			for _, dir := range dirs {
+			for _, dir := range directions {
 				nr, nc := cur[0]+dir[0], cur[1]+dir[1]
-				if valid(nr, nc) {
+				if valid(nr, nc) && grid[nr][nc] == 1 {
 					grid[nr][nc] = 2
-					freshNum--
-					q = append(q, [2]int{nr, nc})
+					q = append(q, []int{nr, nc})
+					fresh--
+					if fresh == 0 {
+						return step
+					}
 				}
 			}
 		}
-		step++
 	}
 
-	if freshNum > 0 {
-		return -1
-	}
-
-	return step - 1
+	return -1
 }
