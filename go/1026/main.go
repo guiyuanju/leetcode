@@ -35,12 +35,6 @@ func assertEq(a, b any) {
  *     Right *TreeNode
  * }
  */
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
 
 func maxAncestorDiff(root *TreeNode) int {
 	var res int
@@ -50,7 +44,6 @@ func maxAncestorDiff(root *TreeNode) int {
 			res = max(res, hi-lo)
 			return
 		}
-
 		dfs(root.Left, min(lo, root.Val), max(hi, root.Val))
 		dfs(root.Right, min(lo, root.Val), max(hi, root.Val))
 	}

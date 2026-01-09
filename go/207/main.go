@@ -19,16 +19,16 @@ func assertEq(a, b any) {
 }
 
 func canFinish(numCourses int, prerequisites [][]int) bool {
-	ind := make([]int, numCourses)
-	g := make(map[int][]int, numCourses)
+	g := map[int][]int{}
+	indgree := make([]int, numCourses)
 	for _, p := range prerequisites {
-		ind[p[0]]++
-		g[p[1]] = append(g[p[1]], p[0])
+		indgree[p[1]]++
+		g[p[0]] = append(g[p[0]], p[1])
 	}
 
 	q := []int{}
-	for i, v := range ind {
-		if v == 0 {
+	for i, ind := range indgree {
+		if ind == 0 {
 			q = append(q, i)
 		}
 	}
@@ -37,15 +37,15 @@ func canFinish(numCourses int, prerequisites [][]int) bool {
 		cur := q[0]
 		q = q[1:]
 		for _, nei := range g[cur] {
-			ind[nei]--
-			if ind[nei] == 0 {
+			indgree[nei]--
+			if indgree[nei] == 0 {
 				q = append(q, nei)
 			}
 		}
 	}
 
-	for _, v := range ind {
-		if v > 0 {
+	for _, ind := range indgree {
+		if ind > 0 {
 			return false
 		}
 	}
