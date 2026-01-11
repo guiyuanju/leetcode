@@ -25,7 +25,7 @@ func assertEq(a, b any) {
 }
 
 type MinStack struct {
-	eles []int
+	vals []int
 	mins []int
 }
 
@@ -34,20 +34,21 @@ func Constructor() MinStack {
 }
 
 func (this *MinStack) Push(val int) {
-	this.eles = append(this.eles, val)
+	this.vals = append(this.vals, val)
 	if len(this.mins) > 0 {
-		val = min(val, this.mins[len(this.mins)-1])
+		this.mins = append(this.mins, min(val, this.mins[len(this.mins)-1]))
+	} else {
+		this.mins = append(this.mins, val)
 	}
-	this.mins = append(this.mins, val)
 }
 
 func (this *MinStack) Pop() {
-	this.eles = this.eles[:len(this.eles)-1]
+	this.vals = this.vals[:len(this.vals)-1]
 	this.mins = this.mins[:len(this.mins)-1]
 }
 
 func (this *MinStack) Top() int {
-	return this.eles[len(this.eles)-1]
+	return this.vals[len(this.vals)-1]
 }
 
 func (this *MinStack) GetMin() int {
