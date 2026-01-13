@@ -28,10 +28,10 @@ func permuteUnique(nums []int) [][]int {
 	}
 
 	var res [][]int
-	var bt func(cur []int)
-	bt = func(cur []int) {
+	var dp func(cur []int)
+	dp = func(cur []int) {
 		if len(cur) == len(nums) {
-			tmp := make([]int, len(nums))
+			tmp := make([]int, len(cur))
 			copy(tmp, cur)
 			res = append(res, tmp)
 			return
@@ -40,13 +40,13 @@ func permuteUnique(nums []int) [][]int {
 		for n, c := range count {
 			if c > 0 {
 				count[n]--
-				bt(append(cur, n))
+				dp(append(cur, n))
 				count[n]++
 			}
 		}
 	}
 
-	bt(nil)
+	dp(nil)
 
 	return res
 }
