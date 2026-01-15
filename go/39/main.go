@@ -15,8 +15,8 @@ func main() {
 
 func combinationSum(candidates []int, target int) [][]int {
 	var res [][]int
-	var dp func(i int, sum int, cur []int)
-	dp = func(i int, sum int, cur []int) {
+	var bt func(i int, cur []int, sum int)
+	bt = func(i int, cur []int, sum int) {
 		if sum > target {
 			return
 		}
@@ -27,11 +27,11 @@ func combinationSum(candidates []int, target int) [][]int {
 			return
 		}
 		for j := i; j < len(candidates); j++ {
-			dp(j, sum+candidates[j], append(cur, candidates[j]))
+			bt(j, append(cur, candidates[j]), sum+candidates[j])
 		}
 	}
 
-	dp(0, 0, nil)
+	bt(0, nil, 0)
 
 	return res
 }
