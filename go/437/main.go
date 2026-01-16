@@ -19,20 +19,20 @@ func main() {
 }
 
 func pathSum(root *TreeNode, targetSum int) int {
+	count := map[int]int{}
+	count[0] = 1
 	var res int
-	sums := map[int]int{}
-	sums[0] = 1
-	var dfs func(root *TreeNode, cur int)
-	dfs = func(root *TreeNode, cur int) {
+	var dfs func(root *TreeNode, sum int)
+	dfs = func(root *TreeNode, sum int) {
 		if root == nil {
 			return
 		}
-		cur += root.Val
-		res += sums[cur-targetSum]
-		sums[cur]++
-		dfs(root.Left, cur)
-		dfs(root.Right, cur)
-		sums[cur]--
+		sum += root.Val
+		res += count[sum-targetSum]
+		count[sum]++
+		dfs(root.Left, sum)
+		dfs(root.Right, sum)
+		count[sum]--
 	}
 
 	dfs(root, 0)
