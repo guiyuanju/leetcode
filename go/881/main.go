@@ -32,9 +32,12 @@ func assertEq[T comparable](a, b T) {
 }
 
 func numRescueBoats(people []int, limit int) int {
-	slices.SortFunc(people, func(a, b int) int { return b - a })
+	slices.Sort(people)
+	slices.Reverse(people)
+	i := 0
+	j := len(people) - 1
 	var res int
-	for i, j := 0, len(people)-1; i <= j; {
+	for i <= j {
 		if people[i]+people[j] <= limit {
 			j--
 		}
