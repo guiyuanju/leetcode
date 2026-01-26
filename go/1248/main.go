@@ -13,7 +13,7 @@ func main() {
 func numberOfSubarrays(nums []int, k int) int {
 	count := map[int]int{}
 	count[0] = 1
-	var cur, res int
+	var res, cur int
 	for _, n := range nums {
 		if n%2 == 1 {
 			cur++
