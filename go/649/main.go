@@ -1,39 +1,47 @@
 package main
 
-import "fmt"
-
-func main() {
-	fmt.Println(predictPartyVictory("RD"))
-	fmt.Println(predictPartyVictory("RDD"))
-}
-
-const (
-	R byte = 'R'
-	D byte = 'D'
+import (
+	"fmt"
+	"reflect"
 )
 
+func main() {
+	assertEq("Radiant", predictPartyVictory("RD"))
+	assertEq("Dire", predictPartyVictory("RDD"))
+}
+
+func assertEq(a, b any) {
+	if reflect.DeepEqual(a, b) {
+		fmt.Printf("Ok: %v\n", a)
+	} else {
+		fmt.Printf("Failed: %v != %v\n", a, b)
+	}
+}
+
 func predictPartyVictory(senate string) string {
-	var rq, dq []int
-	for i, s := range []byte(senate) {
-		if s == R {
-			rq = append(rq, i)
+	var r, d []int
+	for i, v := range []byte(senate) {
+		if v == 'R' {
+			r = append(r, i)
 		} else {
-			dq = append(dq, i)
+			d = append(d, i)
 		}
 	}
 
-	for nextIdx := len(senate); len(rq) > 0 && len(dq) > 0; nextIdx++ {
-		if rq[0] < dq[0] {
-			rq = append(rq, nextIdx)
+	next := len(senate)
+	for len(r) > 0 && len(d) > 0 {
+		if r[0] < d[0] {
+			r = append(r, r[0]+next)
 		} else {
-			dq = append(dq, nextIdx)
+			d = append(d, d[0]+next)
 		}
-		rq = rq[1:]
-		dq = dq[1:]
+		d = d[1:]
+		r = r[1:]
+		next++
 	}
 
-	if len(rq) > 0 {
-		return "Radiant"
+	if len(r) == 0 {
+		return "Dire"
 	}
-	return "Dire"
+	return "Radiant"
 }
