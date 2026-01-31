@@ -24,18 +24,27 @@ func maxProfit(k int, prices []int) int {
 }
 
 func maxProfit_td(k int, prices []int) int {
-	var dp func(i int, k int, holding int) int
-	dp = func(i int, k int, holding int) int {
+	memo := map[[3]int]int{}
+
+	var dp func(i int, k int, hold int) int
+	dp = func(i int, k int, hold int) int {
+		if v, ok := memo[[3]int{i, k, hold}]; ok {
+			return v
+		}
+
 		if i >= len(prices) {
 			return 0
 		}
 
-		res := dp(i+1, k, holding)
-		if holding == 1 {
-			res = max(res, prices[i]+dp(i+1, k, 0))
-		} else if k > 0 {
+		res := dp(i+1, k, hold)
+		if k > 0 && hold == 0 {
 			res = max(res, -prices[i]+dp(i+1, k-1, 1))
 		}
+		if hold == 1 {
+			res = max(res, prices[i]+dp(i+1, k, 0))
+		}
+
+		memo[[3]int{i, k, hold}] = res
 
 		return res
 	}
@@ -53,11 +62,15 @@ func maxProfit_bu(k int, prices []int) int {
 	}
 
 	for i := len(prices) - 1; i >= 0; i-- {
-		for curK := 0; curK <= k; curK++ {
-			copy(dp[i][curK], dp[i+1][curK])
-			dp[i][curK][1] = max(dp[i][curK][1], prices[i]+dp[i+1][curK][0])
-			if curK > 0 {
-				dp[i][curK][0] = max(dp[i][curK][0], -prices[i]+dp[i+1][curK-1][1])
+		for j := range k + 1 {
+			for hold := range 2 {
+				dp[i][j][hold] = dp[i+1][j][hold]
+				if j > 0 && hold == 0 {
+					dp[i][j][hold] = max(dp[i][j][hold], -prices[i]+dp[i+1][j-1][1])
+				}
+				if hold == 1 {
+					dp[i][j][hold] = max(dp[i][j][hold], prices[i]+dp[i+1][j][0])
+				}
 			}
 		}
 	}
