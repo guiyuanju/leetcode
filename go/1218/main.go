@@ -1,6 +1,9 @@
 package main
 
 import (
+	"maps"
+	"slices"
+
 	"github.com/guiyuanju/lcutils/assert"
 )
 
@@ -14,10 +17,11 @@ func main() {
 }
 
 func longestSubsequence(arr []int, difference int) int {
-	return longestSubsequence_bu(arr, difference)
+	return longestSubsequence_new(arr, difference)
 	// return longestSubsequence_td(arr, difference)
 }
 
+// O(n^2) even with memo
 func longestSubsequence_td(arr []int, difference int) int {
 	m := map[int][]int{}
 	for i, n := range arr {
@@ -47,34 +51,12 @@ func longestSubsequence_td(arr []int, difference int) int {
 	return res
 }
 
-// func longestSubsequence(arr []int, difference int) int {
-// 	m := make(map[int]int, len(arr))
-// 	var res int
-// 	for _, n := range arr {
-// 		if v, ok := m[n-difference]; ok {
-// 			m[n] = v + 1
-// 		} else {
-// 			m[n] = 1
-// 		}
-// 		res = max(res, m[n])
-// 	}
-// 	return res
-// }
-
-func longestSubsequence_bu(arr []int, difference int) int {
-	m := map[int]int{}
-	for _, n := range arr {
-		if length, ok := m[n-difference]; ok {
-			m[n] = length + 1
-		} else {
-			m[n] = 1
-		}
+// O(n), 依赖遍历顺序
+func longestSubsequence_new(arr []int, difference int) int {
+	length := map[int]int{}
+	for i := len(arr) - 1; i >= 0; i-- {
+		length[arr[i]] = length[arr[i]+difference] + 1
 	}
 
-	var res int
-	for _, length := range m {
-		res = max(res, length)
-	}
-
-	return res
+	return slices.Max(slices.Collect(maps.Values(length)))
 }
