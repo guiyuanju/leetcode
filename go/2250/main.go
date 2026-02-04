@@ -51,33 +51,35 @@ func parse2DArray(s string) [][]int {
 }
 
 func countRectangles(rectangles [][]int, points [][]int) []int {
-	widths := make([][]int, 101)
+	lengths := make([][]int, 101)
 	for _, r := range rectangles {
-		widths[r[1]] = append(widths[r[1]], r[0])
-	}
-	for i := range widths {
-		slices.SortFunc(widths[i], func(a, b int) int { return b - a })
+		lengths[r[1]] = append(lengths[r[1]], r[0])
 	}
 
-	bs := func(xs []int, target int) int {
+	for _, l := range lengths {
+		slices.Sort(l)
+	}
+
+	query := func(w int, xs []int) int {
 		i := 0
 		j := len(xs)
 		for i < j {
 			mid := i + (j-i)/2
-			if xs[mid] >= target {
+			if xs[mid] < w {
 				i = mid + 1
 			} else {
 				j = mid
 			}
 		}
-		return i
+		return len(xs) - i
 	}
 
 	res := make([]int, len(points))
 	for i, p := range points {
-		for j := p[1]; j < len(widths); j++ {
-			res[i] += bs(widths[j], p[0])
+		for j := p[1]; j <= 100; j++ {
+			res[i] += query(p[0], lengths[j])
 		}
 	}
+
 	return res
 }
