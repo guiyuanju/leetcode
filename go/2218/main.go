@@ -20,8 +20,8 @@ func assertEq(a, b any) {
 }
 
 func maxValueOfCoins(piles [][]int, k int) int {
-	// return maxValueOfCoins_td(piles, k)
-	return maxValueOfCoins_bu(piles, k)
+	return maxValueOfCoins_td(piles, k)
+	// return maxValueOfCoins_bu(piles, k)
 }
 
 func maxValueOfCoins_td(piles [][]int, k int) int {
@@ -33,7 +33,7 @@ func maxValueOfCoins_td(piles [][]int, k int) int {
 
 		var cur int
 		res := dp(i+1, k)
-		for j := range min(k, len(piles[i])) {
+		for j := 0; j < len(piles[i]) && j < k; j++ {
 			cur += piles[i][j]
 			res = max(res, cur+dp(i+1, k-j-1))
 		}
