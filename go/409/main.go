@@ -26,14 +26,16 @@ func longestPalindrome(s string) int {
 	for _, c := range []byte(s) {
 		count[c]++
 	}
+
 	var res int
 	var hasOdd bool
-	for _, v := range count {
-		if v%2 == 1 {
+	for _, c := range count {
+		res += c / 2 * 2
+		if c%2 == 1 {
 			hasOdd = true
 		}
-		res += v / 2 * 2
 	}
+
 	if hasOdd {
 		return res + 1
 	}
