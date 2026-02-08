@@ -32,6 +32,7 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 			return root
 		}
 	}
+
 	return nil
 }
 
