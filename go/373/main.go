@@ -27,25 +27,25 @@ func assertEq(a, b any) {
 }
 
 func kSmallestPairs(nums1 []int, nums2 []int, k int) [][]int {
-	var h Heap
 	var res [][]int
 	seen := map[[2]int]bool{}
 	seen[[2]int{0, 0}] = true
 
-	heap.Push(&h, [3]int{0, 0, nums1[0] + nums2[0]})
-
-	for range k {
+	h := Heap{[3]int{0, 0, nums1[0] + nums2[0]}}
+	for k > 0 {
 		cur := heap.Pop(&h).([3]int)
-		res = append(res, []int{nums1[cur[0]], nums2[cur[1]]})
-		if cur[0] < len(nums1)-1 && !seen[[2]int{cur[0] + 1, cur[1]}] {
-			seen[[2]int{cur[0] + 1, cur[1]}] = true
+		if cur[0]+1 < len(nums1) && !seen[[2]int{cur[0] + 1, cur[1]}] {
 			heap.Push(&h, [3]int{cur[0] + 1, cur[1], nums1[cur[0]+1] + nums2[cur[1]]})
+			seen[[2]int{cur[0] + 1, cur[1]}] = true
 		}
-		if cur[1] < len(nums2)-1 && !seen[[2]int{cur[0], cur[1] + 1}] {
-			seen[[2]int{cur[0], cur[1] + 1}] = true
+		if cur[1]+1 < len(nums2) && !seen[[2]int{cur[0], cur[1] + 1}] {
 			heap.Push(&h, [3]int{cur[0], cur[1] + 1, nums1[cur[0]] + nums2[cur[1]+1]})
+			seen[[2]int{cur[0], cur[1] + 1}] = true
 		}
+		res = append(res, []int{nums1[cur[0]], nums2[cur[1]]})
+		k--
 	}
+
 	return res
 }
 
