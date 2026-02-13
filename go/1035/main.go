@@ -16,17 +16,27 @@ func maxUncrossedLines(nums1 []int, nums2 []int) int {
 }
 
 func maxUncrossedLines_td(nums1 []int, nums2 []int) int {
+	memo := map[[2]int]int{}
+
 	var dp func(i, j int) int
 	dp = func(i, j int) int {
+		if v, ok := memo[[2]int{i, j}]; ok {
+			return v
+		}
+
 		if i >= len(nums1) || j >= len(nums2) {
 			return 0
 		}
 
+		var res int
 		if nums1[i] == nums2[j] {
-			return dp(i+1, j+1) + 1
+			res = 1 + dp(i+1, j+1)
 		}
+		res = max(res, dp(i+1, j), dp(i, j+1))
 
-		return max(dp(i+1, j), dp(i, j+1))
+		memo[[2]int{i, j}] = res
+
+		return res
 	}
 
 	return dp(0, 0)
