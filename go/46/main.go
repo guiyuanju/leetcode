@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"slices"
 )
 
 func main() {
@@ -26,27 +27,23 @@ func assertEq(a, b any) {
 
 func permute(nums []int) [][]int {
 	var res [][]int
-	m := make(map[int]bool, len(nums))
-	cur := make([]int, len(nums))
-	var bt func(i int)
-	bt = func(i int) {
-		if i == len(nums) {
+	var bt func(cur []int)
+	bt = func(cur []int) {
+		if len(cur) == len(nums) {
 			tmp := make([]int, len(nums))
 			copy(tmp, cur)
 			res = append(res, tmp)
 			return
 		}
-		for _, n := range nums {
-			if !m[n] {
-				m[n] = true
-				cur[i] = n
-				bt(i + 1)
-				m[n] = false
+
+		for i := range nums {
+			if !slices.Contains(cur, nums[i]) {
+				bt(append(cur, nums[i]))
 			}
 		}
 	}
 
-	bt(0)
+	bt(nil)
 
 	return res
 }
