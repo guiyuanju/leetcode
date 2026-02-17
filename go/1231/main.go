@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
 	sweetness := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
@@ -22,23 +24,24 @@ func assertEq[T comparable](a, b T) {
 }
 
 func maximizeSweetness(sweetness []int, k int) int {
-	check := func(s int) bool {
-		var cur, count int
-		for _, v := range sweetness {
-			cur += v
-			if cur >= s {
+	check := func(target int) bool {
+		var res, cur int
+		for _, s := range sweetness {
+			cur += s
+			if cur >= target {
 				cur = 0
-				count++
+				res++
 			}
 		}
-		return count >= k+1
+		return res >= k+1
 	}
 
-	var i, j int
+	var total int
 	for _, s := range sweetness {
-		j += s
+		total += s
 	}
-	j++
+	i := 1
+	j := total + 1
 
 	for i < j {
 		mid := i + (j-i)/2
