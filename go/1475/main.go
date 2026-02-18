@@ -21,15 +21,17 @@ func assertEq(a, b any) {
 
 func finalPrices(prices []int) []int {
 	res := make([]int, len(prices))
-	copy(res, prices)
 	mono := []int{}
 	for i, p := range prices {
-		for len(mono) > 0 && prices[mono[len(mono)-1]] >= p {
-			popped := mono[len(mono)-1]
+		for len(mono) > 0 && p <= prices[mono[len(mono)-1]] {
+			idx := mono[len(mono)-1]
+			res[idx] = prices[idx] - p
 			mono = mono[:len(mono)-1]
-			res[popped] = prices[popped] - p
 		}
 		mono = append(mono, i)
+	}
+	for _, idx := range mono {
+		res[idx] = prices[idx]
 	}
 	return res
 }
