@@ -3,29 +3,35 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println(distanceK(makeBinaryTree([]any{3, 5, 1, 6, 2, 0, 8, nil, nil, 7, 4}), &TreeNode{5, nil, nil}, 2))
+	tree := makeBinaryTree([]any{3, 5, 1, 6, 2, 0, 8, nil, nil, 7, 4})
+	fmt.Println(distanceK(tree, getNodeFromUniqVal(tree, 5), 2))
 	fmt.Println(distanceK(makeBinaryTree([]any{1}), &TreeNode{1, nil, nil}, 3))
 }
 
 func distanceK(root *TreeNode, target *TreeNode, k int) []int {
-	ups := map[*TreeNode]*TreeNode{}
+	up := map[int]*TreeNode{}
 	var dfs func(root *TreeNode)
 	dfs = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
-		ups[root.Left] = root
-		ups[root.Right] = root
-		dfs(root.Left)
-		dfs(root.Right)
+		if root.Left != nil {
+			up[root.Left.Val] = root
+			dfs(root.Left)
+		}
+		if root.Right != nil {
+			up[root.Right.Val] = root
+			dfs(root.Right)
+		}
 	}
+
 	dfs(root)
 
-	seen := map[*TreeNode]bool{}
-	seen[target] = true
-	var res []int
-	var step int
 	q := []*TreeNode{target}
+	seen := map[int]bool{}
+	seen[target.Val] = true
+	var step int
+	var res []int
 	for len(q) > 0 {
 		for range len(q) {
 			cur := q[0]
@@ -33,23 +39,46 @@ func distanceK(root *TreeNode, target *TreeNode, k int) []int {
 			if step == k {
 				res = append(res, cur.Val)
 			}
-			if cur.Left != nil && !seen[cur.Left] {
-				seen[cur.Left] = true
+			if cur.Left != nil && !seen[cur.Left.Val] {
 				q = append(q, cur.Left)
+				seen[cur.Left.Val] = true
 			}
-			if cur.Right != nil && !seen[cur.Right] {
-				seen[cur.Right] = true
+			if cur.Right != nil && !seen[cur.Right.Val] {
 				q = append(q, cur.Right)
+				seen[cur.Right.Val] = true
 			}
-			if ups[cur] != nil && !seen[ups[cur]] {
-				seen[ups[cur]] = true
-				q = append(q, ups[cur])
+			if up[cur.Val] != nil && !seen[up[cur.Val].Val] {
+				q = append(q, up[cur.Val])
+				seen[up[cur.Val].Val] = true
 			}
+		}
+		if step == k {
+			break
 		}
 		step++
 	}
 
 	return res
+}
+
+// Suppose the tree node has unique value, return the node of provided value
+func getNodeFromUniqVal(root *TreeNode, val int) *TreeNode {
+	var dp func(root *TreeNode) *TreeNode
+	dp = func(root *TreeNode) *TreeNode {
+		if root == nil {
+			return nil
+		}
+		if root.Val == val {
+			return root
+		}
+		res := dp(root.Left)
+		if res == nil {
+			res = dp(root.Right)
+		}
+		return res
+	}
+
+	return dp(root)
 }
 
 type TreeNode struct {
