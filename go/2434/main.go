@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"reflect"
-	"slices"
 )
 
 func main() {
@@ -14,27 +13,27 @@ func main() {
 }
 
 func robotWithString(s string) string {
+	t := []byte{}
+	res := []byte{}
+
 	mins := make([]byte, len(s))
-	mins[len(mins)-1] = s[len(s)-1]
+	mins[len(s)-1] = s[len(s)-1]
 	for i := len(s) - 2; i >= 0; i-- {
-		mins[i] = min(mins[i+1], s[i])
+		mins[i] = min(s[i], mins[i+1])
 	}
 
-	var t, res []byte
-	var i int
-	for i < len(s) {
-		if len(t) > 0 && t[len(t)-1] <= mins[i] {
-			res = append(res, t[len(t)-1])
-			t = t[:len(t)-1]
-		} else {
+	for i := 0; i < len(s); {
+		if len(t) == 0 || mins[i] < t[len(t)-1] {
 			t = append(t, s[i])
 			i++
+		} else {
+			res = append(res, t[len(t)-1])
+			t = t[:len(t)-1]
 		}
 	}
 
-	if len(t) > 0 {
-		slices.Reverse(t)
-		res = append(res, t...)
+	for i := len(t) - 1; i >= 0; i-- {
+		res = append(res, t[i])
 	}
 
 	return string(res)
