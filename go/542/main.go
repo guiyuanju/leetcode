@@ -14,22 +14,18 @@ func main() {
 func updateMatrix(mat [][]int) [][]int {
 	m := len(mat)
 	n := len(mat[0])
-	seen := make([][]bool, m)
-	for i := range m {
-		seen[i] = make([]bool, n)
-	}
-
 	dirs := [][]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	valid := func(r, c int) bool {
 		return 0 <= r && r < m && 0 <= c && c < n
 	}
 
 	q := [][2]int{}
-	for i := range m {
-		for j := range n {
-			if mat[i][j] == 0 {
-				q = append(q, [2]int{i, j})
-				seen[i][j] = true
+	seen := map[[2]int]bool{}
+	for r := range m {
+		for c := range n {
+			if mat[r][c] == 0 {
+				seen[[2]int{r, c}] = true
+				q = append(q, [2]int{r, c})
 			}
 		}
 	}
@@ -37,13 +33,13 @@ func updateMatrix(mat [][]int) [][]int {
 	var step int
 	for len(q) > 0 {
 		step++
-		for range len(q) {
+		for range q {
 			cur := q[0]
 			q = q[1:]
 			for _, dir := range dirs {
 				nr, nc := cur[0]+dir[0], cur[1]+dir[1]
-				if valid(nr, nc) && !seen[nr][nc] {
-					seen[nr][nc] = true
+				if valid(nr, nc) && !seen[[2]int{nr, nc}] {
+					seen[[2]int{nr, nc}] = true
 					mat[nr][nc] = step
 					q = append(q, [2]int{nr, nc})
 				}
