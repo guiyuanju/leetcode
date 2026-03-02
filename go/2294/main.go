@@ -34,11 +34,11 @@ func assertEq[T comparable](a, b T) {
 func partitionArray(nums []int, k int) int {
 	slices.Sort(nums)
 	res := 1
-	curLimit := nums[0] + k
+	cur := nums[0]
 	for i := 1; i < len(nums); i++ {
-		if nums[i] > curLimit {
-			curLimit = nums[i] + k
+		if nums[i]-cur > k {
 			res++
+			cur = nums[i]
 		}
 	}
 	return res
