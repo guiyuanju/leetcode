@@ -30,7 +30,6 @@ func assertEq[T comparable](a, b T) {
 func findContentChildren(g []int, s []int) int {
 	slices.Sort(g)
 	slices.Sort(s)
-
 	var res, i, j int
 	for i < len(g) && j < len(s) {
 		if g[i] <= s[j] {
@@ -39,6 +38,5 @@ func findContentChildren(g []int, s []int) int {
 		}
 		j++
 	}
-
 	return res
 }
