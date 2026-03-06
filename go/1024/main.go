@@ -40,27 +40,27 @@ func assertEq[T comparable](a, b T) {
 }
 
 func videoStitching(clips [][]int, time int) int {
-	var res, curLimit, nextLimit int
-	res = 1
 	slices.SortFunc(clips, func(a, b []int) int { return a[0] - b[0] })
+	var res int
+	var leftLimit, rightLimit int
 	for _, c := range clips {
-		if nextLimit >= time {
-			return res
+		if rightLimit >= time {
+			return res + 1
 		}
-		if c[0] > nextLimit {
+		if c[0] > rightLimit {
 			return -1
 		}
-		if c[0] > curLimit && c[1] <= nextLimit {
-			continue
-		}
-		if c[0] > curLimit {
+		if c[0] <= leftLimit {
+			rightLimit = max(rightLimit, c[1])
+		} else {
+			leftLimit = rightLimit
+			rightLimit = max(rightLimit, c[1])
 			res++
-			curLimit = nextLimit
 		}
-		nextLimit = max(nextLimit, c[1])
 	}
-	if nextLimit < time {
-		return -1
+
+	if rightLimit >= time {
+		return res + 1
 	}
-	return res
+	return -1
 }
