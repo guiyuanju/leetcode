@@ -28,25 +28,24 @@ func assertEq(a, b any) {
 }
 
 func successfulPairs(spells []int, potions []int, success int64) []int {
-	var res []int
 	slices.Sort(potions)
-	for _, s := range spells {
-		target := int64(math.Ceil(float64(success) / float64(s)))
-		res = append(res, len(potions)-bs(potions, target))
+	res := make([]int, len(spells))
+	for i := range res {
+		res[i] = bs(potions, int(math.Ceil(float64(success)/float64(spells[i]))))
 	}
 	return res
 }
 
-func bs(xs []int, target int64) int {
-	lo := 0
-	hi := len(xs)
-	for lo < hi {
-		mid := lo + (hi-lo)/2
-		if int64(xs[mid]) < target {
-			lo = mid + 1
+func bs(xs []int, target int) int {
+	i := 0
+	j := len(xs)
+	for i < j {
+		mid := i + (j-i)/2
+		if xs[mid] < target {
+			i = mid + 1
 		} else {
-			hi = mid
+			j = mid
 		}
 	}
-	return lo
+	return len(xs) - i
 }
