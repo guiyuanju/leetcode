@@ -24,44 +24,45 @@ func assertEq(a, b any) {
 }
 
 func closestNodes(root *TreeNode, queries []int) [][]int {
-	var nums []int
+	var arr []int
 	var dfs func(root *TreeNode)
 	dfs = func(root *TreeNode) {
 		if root == nil {
 			return
 		}
 		dfs(root.Left)
-		nums = append(nums, root.Val)
+		arr = append(arr, root.Val)
 		dfs(root.Right)
 	}
+
 	dfs(root)
 
 	var res [][]int
 	for _, q := range queries {
-		idx := bs(nums, q)
-		lo, hi := -1, -1
-		if idx > 0 {
-			lo = nums[idx-1]
+		cur := []int{-1, -1}
+		index := bs(arr, q)
+		if index > 0 {
+			cur[0] = arr[index-1]
 		}
-		if idx < len(nums) {
-			hi = nums[idx]
+		if index < len(arr) {
+			cur[1] = arr[index]
 		}
-		if idx < len(nums) && nums[idx] == q {
-			lo = q
-			hi = q
+		if index < len(arr) && arr[index] == q {
+			cur[0] = q
+			cur[1] = q
 		}
-		res = append(res, []int{lo, hi})
+		res = append(res, cur)
 	}
 
 	return res
 }
 
-func bs(xs []int, target int) int {
+func bs(arr []int, target int) int {
 	i := 0
-	j := len(xs)
+	j := len(arr)
 	for i < j {
 		mid := i + (j-i)/2
-		if xs[mid] < target {
+		if arr[mid] < target {
 			i = mid + 1
 		} else {
 			j = mid
