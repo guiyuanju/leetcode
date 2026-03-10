@@ -17,6 +17,7 @@ func main() {
 	assertEq(int64(8), maxRunTime(3, batteries))
 }
 
+// 3 5 10 10
 func assertEq(a, b any) {
 	if reflect.DeepEqual(a, b) {
 		fmt.Printf("Ok: %v\n", a)
@@ -26,22 +27,20 @@ func assertEq(a, b any) {
 }
 
 func maxRunTime(n int, batteries []int) int64 {
-	slices.SortFunc(batteries, func(a, b int) int { return b - a })
-	live := batteries[:n]
-	slices.Reverse(live)
-
-	var extra int
-	for i := n; i < len(batteries); i++ {
-		extra += batteries[i]
+	slices.Sort(batteries)
+	var remain int
+	for i := range len(batteries) - n {
+		remain += batteries[i]
 	}
 
-	for i := range n - 1 {
-		diff := live[i+1] - live[i]
-		if extra < diff*(i+1) {
-			return int64(live[i] + extra/(i+1))
+	start := len(batteries) - n
+	for j := start + 1; j < len(batteries); j++ {
+		need := (batteries[j] - batteries[j-1]) * (j - start)
+		if remain < need {
+			return int64(batteries[j-1]) + int64(remain/(j-start))
 		}
-		extra -= diff * (i + 1)
+		remain -= need
 	}
 
-	return int64(live[len(live)-1] + extra/n)
+	return int64(batteries[len(batteries)-1]) + int64(remain/n)
 }
