@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"slices"
 )
 
 func main() {
@@ -15,27 +14,21 @@ func main() {
 }
 
 func combinationSum2(candidates []int, target int) [][]int {
-	slices.Sort(candidates)
 	var res [][]int
-	var dp func(i int, sum int, cur []int)
-	dp = func(i int, sum int, cur []int) {
+	var bt func(i int, cur []int, sum int)
+	bt = func(i int, cur []int, sum int) {
 		if sum == target {
-			tmp := make([]int, len(cur))
+			tmp := make([]int, i)
 			copy(tmp, cur)
 			res = append(res, tmp)
-			return
 		}
-		if sum > target {
-			return
-		}
+
 		for j := i; j < len(candidates); j++ {
-			if j == i || candidates[j] != candidates[j-1] {
-				dp(j+1, sum+candidates[j], append(cur, candidates[j]))
-			}
+			bt(j+1, append(cur, candidates[j]), sum+candidates[j])
 		}
 	}
 
-	dp(0, 0, nil)
+	bt(0, nil, 0)
 
 	return res
 }
