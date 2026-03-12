@@ -15,8 +15,8 @@ func main() {
 
 func findSubsequences(nums []int) [][]int {
 	var res [][]int
-	var dp func(i int, cur []int)
-	dp = func(i int, cur []int) {
+	var bt func(i int, cur []int)
+	bt = func(i int, cur []int) {
 		if len(cur) >= 2 {
 			tmp := make([]int, len(cur))
 			copy(tmp, cur)
@@ -24,13 +24,17 @@ func findSubsequences(nums []int) [][]int {
 		}
 
 		for j := i; j < len(nums); j++ {
-			if !slices.Contains(nums[i:j], nums[j]) && (len(cur) == 0 || nums[j] >= cur[len(cur)-1]) {
-				dp(j+1, append(cur, nums[j]))
+			if slices.Contains(nums[i:j], nums[j]) {
+				continue
 			}
+			if len(cur) > 0 && nums[j] < cur[len(cur)-1] {
+				continue
+			}
+			bt(j+1, append(cur, nums[j]))
 		}
 	}
 
-	dp(0, nil)
+	bt(0, nil)
 
 	return res
 }
