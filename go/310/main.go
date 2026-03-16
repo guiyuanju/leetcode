@@ -20,40 +20,37 @@ func assertEq(a, b any) {
 }
 
 func findMinHeightTrees(n int, edges [][]int) []int {
-	if n == 1 {
-		return []int{0}
-	}
-
+	degrees := make([]int, n)
 	g := map[int][]int{}
-	deg := make([]int, n)
 	for _, e := range edges {
-		deg[e[0]]++
-		deg[e[1]]++
 		g[e[0]] = append(g[e[0]], e[1])
 		g[e[1]] = append(g[e[1]], e[0])
+		degrees[e[0]]++
+		degrees[e[1]]++
 	}
 
 	q := []int{}
-	for n, d := range deg {
-		if d == 1 {
-			q = append(q, n)
+	for i, d := range degrees {
+		if d <= 1 {
+			q = append(q, i)
 		}
 	}
 
-	left := n - len(q)
-	for left > 0 {
-		for range len(q) {
+	var res []int
+	for len(q) > 0 {
+		res = q
+		for range q {
 			cur := q[0]
 			q = q[1:]
+			degrees[cur]--
 			for _, nei := range g[cur] {
-				deg[nei]--
-				if deg[nei] == 1 {
-					left--
+				degrees[nei]--
+				if degrees[nei] == 1 {
 					q = append(q, nei)
 				}
 			}
 		}
 	}
 
-	return q
+	return res
 }

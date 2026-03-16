@@ -37,6 +37,10 @@ func combinationSum2(candidates []int, target int) [][]int {
 			return
 		}
 
+		if sum > target {
+			return
+		}
+
 		for j := i; j < len(candidates); j++ {
 			bt(j+1, append(cur, candidates[j]), sum+candidates[j])
 			for j < len(candidates)-1 && candidates[j] == candidates[j+1] {
