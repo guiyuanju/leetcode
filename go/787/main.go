@@ -17,6 +17,50 @@ func main() {
 }
 
 func findCheapestPrice(n int, flights [][]int, src int, dst int, k int) int {
+	if src == dst {
+		return 0
+	}
+
+	g := make(map[int][][]int, n)
+	for _, f := range flights {
+		g[f[0]] = append(g[f[0]], f[1:])
+	}
+
+	type step struct {
+		node  int
+		price int
+	}
+
+	prices := make([]int, n)
+	for i := range prices {
+		prices[i] = math.MaxInt
+	}
+	prices[src] = 0
+
+	stop := 0
+	q := []step{{src, 0}}
+	for len(q) > 0 && stop <= k {
+		stop++
+		for range len(q) {
+			cur := q[0]
+			q = q[1:]
+			for _, nei := range g[cur.node] {
+				nextStep := step{nei[0], cur.price + nei[1]}
+				if nextStep.price < prices[nextStep.node] {
+					q = append(q, nextStep)
+					prices[nextStep.node] = nextStep.price
+				}
+			}
+		}
+	}
+
+	if prices[dst] == math.MaxInt {
+		return -1
+	}
+	return prices[dst]
+}
+
+func findCheapestPrice2(n int, flights [][]int, src int, dst int, k int) int {
 	g := make(map[int][][2]int, n)
 	for _, f := range flights {
 		g[f[0]] = append(g[f[0]], [2]int{f[1], f[2]})
