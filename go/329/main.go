@@ -9,6 +9,8 @@ func main() {
 	assertEq(4, longestIncreasingPath([][]int{{9, 9, 4}, {6, 6, 8}, {2, 1, 1}}))
 	assertEq(4, longestIncreasingPath([][]int{{3, 4, 5}, {3, 2, 6}, {2, 2, 1}}))
 	assertEq(1, longestIncreasingPath([][]int{{1}}))
+	assertEq(4, longestIncreasingPath([][]int{{7, 7, 5}, {2, 4, 6}, {8, 2, 0}}))
+	assertEq(3, longestIncreasingPath([][]int{{0}, {1}, {5}, {5}}))
 }
 
 func assertEq(a, b any) {
@@ -23,13 +25,13 @@ func longestIncreasingPath(matrix [][]int) int {
 	m := len(matrix)
 	n := len(matrix[0])
 
-	directions := [][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	valid := func(r, c int) bool {
 		return 0 <= r && r < m && 0 <= c && c < n
 	}
+	directions := [][]int{{0, 1}, {0, -1}, {-1, 0}, {1, 0}}
 
-	g := map[[2]int][][2]int{}
 	indegree := map[[2]int]int{}
+	g := map[[2]int][][2]int{}
 	for i := range m {
 		for j := range n {
 			for _, dir := range directions {
@@ -51,10 +53,9 @@ func longestIncreasingPath(matrix [][]int) int {
 		}
 	}
 
-	var step int
+	length := 0
 	for len(q) > 0 {
-		step++
-		for range len(q) {
+		for range q {
 			cur := q[0]
 			q = q[1:]
 			for _, nei := range g[cur] {
@@ -64,7 +65,8 @@ func longestIncreasingPath(matrix [][]int) int {
 				}
 			}
 		}
+		length++
 	}
 
-	return step
+	return length
 }
