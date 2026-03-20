@@ -15,17 +15,17 @@ func main() {
 }
 
 func checkSubarraySum(nums []int, k int) bool {
+	reminders := map[int]int{}
+	reminders[0] = -1
 	var cur int
-	sum := map[int]int{}
-	sum[0] = -1
 	for i, n := range nums {
 		cur += n
-		if idx, ok := sum[cur%k]; ok {
+		if idx, ok := reminders[cur%k]; ok {
 			if i-idx >= 2 {
 				return true
 			}
 		} else {
-			sum[cur%k] = i
+			reminders[cur%k] = i
 		}
 	}
 	return false
