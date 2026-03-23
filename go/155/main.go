@@ -36,7 +36,7 @@ func Constructor() MinStack {
 func (this *MinStack) Push(val int) {
 	this.vals = append(this.vals, val)
 	if len(this.mins) > 0 {
-		this.mins = append(this.mins, min(val, this.mins[len(this.mins)-1]))
+		this.mins = append(this.mins, min(val, this.GetMin()))
 	} else {
 		this.mins = append(this.mins, val)
 	}
